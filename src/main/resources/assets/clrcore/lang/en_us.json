@@ -1,0 +1,16 @@
+{
+  "item.clrcore.kindled_fuel_rod": "Kindled Fuel Rod",
+  "item.clrcore.seething_fuel_rod": "Seething Fuel Rod",
+  "item.clrcore.andesite_scrap_bucket": "Andesite Scrap Bucket",
+
+  "block.clrcore.andesite_scrap_bucket": "Andesite Scrap Bucket",
+
+  "itemGroup.clrcore": "CLR Core",
+
+  "tooltip.clrcore.andesite_scrap_bucket.shift.prefix": "Hold [",
+  "tooltip.clrcore.andesite_scrap_bucket.shift.key": "Shift",
+  "tooltip.clrcore.andesite_scrap_bucket.shift.suffix": "] for Summary",
+  "tooltip.clrcore.andesite_scrap_bucket.destroy_items": "Destroys all non-blacklisted items",
+  "tooltip.clrcore.andesite_scrap_bucket.destroy_fluids": "Destroys all non-blacklisted fluids",
+  "tooltip.clrcore.andesite_scrap_bucket.config": "Blacklist can be modified in config file"
+}

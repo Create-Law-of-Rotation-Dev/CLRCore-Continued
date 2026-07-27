@@ -1,0 +1,20 @@
+package com.onehumanawa.clrcore;
+
+import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+
+public class ModBlockEntityTypes {
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
+            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, CLRCore.MOD_ID);
+
+    public static final RegistryObject<BlockEntityType<AndesiteScrapBucketBlockEntity>> ANDESITE_SCRAP_BUCKET =
+            BLOCK_ENTITY_TYPES.register("andesite_scrap_bucket",
+                    () -> BlockEntityType.Builder.of(
+                            AndesiteScrapBucketBlockEntity::new,
+                            ModBlocks.ANDESITE_SCRAP_BUCKET.get()
+                    ).build(null)
+            );
+}

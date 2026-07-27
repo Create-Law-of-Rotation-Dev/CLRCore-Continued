@@ -1,0 +1,27 @@
+package com.onehumanawa.clrcore;
+
+import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+
+public class ModBlocks {
+    public static final DeferredRegister<Block> BLOCKS =
+            DeferredRegister.create(ForgeRegistries.BLOCKS, CLRCore.MOD_ID);
+
+    public static final RegistryObject<Block> ANDESITE_SCRAP_BUCKET =
+            BLOCKS.register("andesite_scrap_bucket",
+                    () -> new AndesiteScrapBucketBlock(
+                            BlockBehaviour.Properties.of()
+                                    .mapColor(MapColor.STONE)
+                                    .sound(SoundType.METAL)
+                                    .strength(1.5f, 6.0f)
+                                    .noOcclusion()
+                                    .requiresCorrectToolForDrops()
+                    )
+            );
+}
