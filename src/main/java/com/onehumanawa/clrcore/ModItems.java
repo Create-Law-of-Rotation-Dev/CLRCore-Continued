@@ -21,10 +21,15 @@ public class ModItems {
             ITEMS.register("seething_fuel_rod",
                     () -> new SeethingFuelRodItem(new Item.Properties().stacksTo(64)));
 
-    // 安山岩废料桶（方块物品）
+    // 安山岩废料桶
     public static final RegistryObject<Item> ANDESITE_SCRAP_BUCKET =
             ITEMS.register("andesite_scrap_bucket",
                     () -> new BlockItem(ModBlocks.ANDESITE_SCRAP_BUCKET.get(),
-                            new Item.Properties().stacksTo(16))
-            );
+                            new Item.Properties().stacksTo(16)));
+
+    // 黄铜废料桶
+    public static final RegistryObject<Item> BRASS_SCRAP_BUCKET =
+            ITEMS.register("brass_scrap_bucket",
+                    () -> new BlockItem(ModBlocks.BRASS_SCRAP_BUCKET.get(),
+                            new Item.Properties().stacksTo(16)));
 }

@@ -3,7 +3,10 @@ package com.onehumanawa.clrcore.block;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,10 +28,5 @@ public class AndesiteScrapBucketBlock extends BaseEntityBlock implements IWrench
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new AndesiteScrapBucketBlockEntity(pos, state);
-    }
-
-    @Override
-    public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-        return IWrenchable.super.onWrenched(state, context);
     }
 }

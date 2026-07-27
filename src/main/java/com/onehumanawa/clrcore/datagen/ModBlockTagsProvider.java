@@ -17,8 +17,10 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
     }
 
     @Override
-    protected void addTags(HolderLookup.Provider pProvider) {
+    protected void addTags(HolderLookup.Provider provider) {
+        // 添加Create的扳手拾取标签
         this.tag(BlockTags.create(CLRCore.rl("create:wrench_pickup")))
-                .add(ModBlocks.ANDESITE_SCRAP_BUCKET.get());
+                .add(ModBlocks.ANDESITE_SCRAP_BUCKET.get())
+                .add(ModBlocks.BRASS_SCRAP_BUCKET.get());
     }
 }

@@ -1,6 +1,7 @@
 package com.onehumanawa.clrcore;
 
 import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlockEntity;
+import com.onehumanawa.clrcore.block.BrassScrapBucketBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -15,6 +16,14 @@ public class ModBlockEntityTypes {
                     () -> BlockEntityType.Builder.of(
                             AndesiteScrapBucketBlockEntity::new,
                             ModBlocks.ANDESITE_SCRAP_BUCKET.get()
+                    ).build(null)
+            );
+
+    public static final RegistryObject<BlockEntityType<BrassScrapBucketBlockEntity>> BRASS_SCRAP_BUCKET =
+            BLOCK_ENTITY_TYPES.register("brass_scrap_bucket",
+                    () -> BlockEntityType.Builder.of(
+                            (pos, state) -> new BrassScrapBucketBlockEntity(pos, state),
+                            ModBlocks.BRASS_SCRAP_BUCKET.get()
                     ).build(null)
             );
 }

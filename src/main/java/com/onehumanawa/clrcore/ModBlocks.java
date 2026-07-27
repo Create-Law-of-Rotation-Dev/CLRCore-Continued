@@ -1,6 +1,7 @@
 package com.onehumanawa.clrcore;
 
 import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlock;
+import com.onehumanawa.clrcore.block.BrassScrapBucketBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -20,6 +21,18 @@ public class ModBlocks {
                                     .mapColor(MapColor.STONE)
                                     .sound(SoundType.METAL)
                                     .strength(1.5f, 6.0f)
+                                    .noOcclusion()
+                                    .requiresCorrectToolForDrops()
+                    )
+            );
+
+    public static final RegistryObject<Block> BRASS_SCRAP_BUCKET =
+            BLOCKS.register("brass_scrap_bucket",
+                    () -> new BrassScrapBucketBlock(
+                            BlockBehaviour.Properties.of()
+                                    .mapColor(MapColor.METAL)
+                                    .sound(SoundType.METAL)
+                                    .strength(2.0f, 6.0f)
                                     .noOcclusion()
                                     .requiresCorrectToolForDrops()
                     )

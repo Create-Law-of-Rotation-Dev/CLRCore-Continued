@@ -96,6 +96,15 @@ public class AndesiteScrapBucketBlockEntity extends BlockEntity {
         }
     };
 
+    public void drops() {
+        if (level == null) return;
+        // 安山岩废料桶只有输入槽，没有过滤槽
+        ItemStack input = itemHandler.getStackInSlot(0);
+        if (!input.isEmpty()) {
+            net.minecraft.world.Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), input);
+        }
+    }
+
     private final LazyOptional<IItemHandler> itemHandlerCap = LazyOptional.of(() -> itemHandler);
     private final LazyOptional<IFluidHandler> fluidHandlerCap = LazyOptional.of(() -> fluidHandler);
 
