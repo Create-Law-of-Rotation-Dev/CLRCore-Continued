@@ -3,7 +3,6 @@ package com.onehumanawa.clrcore.block;
 import com.onehumanawa.clrcore.CLRCore;
 import com.onehumanawa.clrcore.ModBlockEntityTypes;
 import com.onehumanawa.clrcore.config.CLRCoreConfig;
-import com.onehumanawa.clrcore.block.BrassScrapBucketFilterSlotPositioning;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -11,10 +10,13 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringB
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -27,21 +29,36 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 
 public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
 
-    // 槽位常量
+    public static final int ATTACH_NONE = 0;
+    public static final int ATTACH_ITEM = 1;
+    public static final int ATTACH_FLUID = 2;
+
     private static final int INPUT_SLOT = 0;
     private static final int OUTPUT_SLOT = 1;
     private static final int FILTER_SLOT = 2;
     private static final int SLOT_COUNT = 3;
 
-    // 过滤器行为
     public FilteringBehaviour filtering;
 
-    // 物品处理器
-    private final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {
+    public int keepAmount = -1;
+    public boolean keepInStacks = false;
+
+    private int itemFill = 0;
+    private int fluidFill = 0;
+    private ItemStack producedStack = ItemStack.EMPTY;
+
+    private int itemTickCounter = 0;
+    private int fluidTickCounter = 0;
+
+    // 当前数量（用于GUI显示）
+    private int currentAmount = 0;
+    private int currentStacks = 0;
+
+    // ==================== ItemHandler ====================
+    public final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (slot == INPUT_SLOT) {
@@ -60,7 +77,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         protected void onContentsChanged(int slot) {
             setChanged();
             if (slot == FILTER_SLOT) {
-                // 同步到FilteringBehaviour
                 ItemStack filterStack = getStackInSlot(FILTER_SLOT);
                 if (filtering != null) {
                     filtering.setFilter(filterStack);
@@ -78,7 +94,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             if (slot == INPUT_SLOT && !stack.isEmpty()) {
-                // 检查过滤器
                 if (filtering != null && !filtering.test(stack)) {
                     return stack;
                 }
@@ -86,8 +101,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
                     return stack;
                 }
                 if (!simulate) {
-                    int count = stack.getCount();
-                    accumulateItemFill(count);
+                    accumulateItemFill(stack.getCount());
                     setChanged();
                 }
                 return ItemStack.EMPTY;
@@ -126,7 +140,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
     };
 
-    // 流体处理器
+    // ==================== FluidHandler ====================
     private final IFluidHandler fluidHandler = new IFluidHandler() {
         @Override
         public int getTanks() {
@@ -152,7 +166,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         public int fill(FluidStack resource, FluidAction action) {
             if (resource.isEmpty()) return 0;
             if (ScrapBucketBlacklist.isBlacklisted(resource)) return 0;
-            // 检查过滤器（FluidFilter支持）
             if (filtering != null && !filtering.test(resource)) {
                 return 0;
             }
@@ -174,29 +187,24 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
     };
 
+    // ==================== Capability ====================
     private final LazyOptional<IItemHandler> itemHandlerCap = LazyOptional.of(() -> itemHandler);
     private final LazyOptional<IFluidHandler> fluidHandlerCap = LazyOptional.of(() -> fluidHandler);
 
-    // 内部状态
-    private int itemFill = 0;
-    private int fluidFill = 0;
-    private ItemStack producedStack = ItemStack.EMPTY;
-
+    // ==================== 构造器 ====================
     public BrassScrapBucketBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.BRASS_SCRAP_BUCKET.get(), pos, state);
     }
 
+    // ==================== Behaviours ====================
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-        // 添加过滤器行为
         filtering = new FilteringBehaviour(this, new BrassScrapBucketFilterSlotPositioning())
                 .withCallback((stack) -> {
-                    // 当过滤器变化时同步到itemHandler
                     ItemStack filterStack = stack.copy();
                     if (!filterStack.isEmpty()) {
                         filterStack.setCount(1);
                     }
-                    // 更新itemHandler中的过滤槽
                     ItemStack currentFilter = itemHandler.getStackInSlot(FILTER_SLOT);
                     if (!ItemStack.matches(currentFilter, filterStack)) {
                         itemHandler.setStackInSlot(FILTER_SLOT, filterStack);
@@ -206,11 +214,243 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         behaviours.add(filtering);
     }
 
-    // 获取过滤槽物品
+    // ==================== 获取过滤槽物品 ====================
     public ItemStack getFilterSlot() {
         return itemHandler.getStackInSlot(FILTER_SLOT);
     }
 
+    // ==================== 检测上方容器类型 ====================
+    public int getAttachType() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+
+        BlockState aboveState = level.getBlockState(above);
+        if (aboveState.is(TagKey.create(Registries.BLOCK, CLRCore.rl("scrap_bucket")))) {
+            return 0;
+        }
+
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+
+        var itemCap = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (itemCap != null && itemCap.isPresent()) {
+            return ATTACH_ITEM;
+        }
+
+        var fluidCap = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
+        if (fluidCap != null && fluidCap.isPresent()) {
+            return ATTACH_FLUID;
+        }
+
+        return 0;
+    }
+
+    // ==================== 上方容器查询方法 ====================
+    public int getAboveMaxItems() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IItemHandler h = handler.orElse(null);
+        if (h == null) return 0;
+        int total = 0;
+        for (int i = 0; i < h.getSlots(); i++) {
+            total += Math.min(64, h.getSlotLimit(i));
+        }
+        return total;
+    }
+
+    public int getAboveMaxStacks() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IItemHandler h = handler.orElse(null);
+        return h == null ? 0 : h.getSlots();
+    }
+
+    public int getAboveMaxFluids() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IFluidHandler h = handler.orElse(null);
+        if (h == null) return 0;
+        int total = 0;
+        for (int i = 0; i < h.getTanks(); i++) {
+            total += h.getTankCapacity(i);
+        }
+        return total / 1000;
+    }
+
+    public int getAboveCurrentItems() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IItemHandler h = handler.orElse(null);
+        if (h == null) return 0;
+        int total = 0;
+        for (int i = 0; i < h.getSlots(); i++) {
+            total += h.getStackInSlot(i).getCount();
+        }
+        return total;
+    }
+
+    public int getAboveCurrentStacks() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IItemHandler h = handler.orElse(null);
+        if (h == null) return 0;
+        int occupied = 0;
+        for (int i = 0; i < h.getSlots(); i++) {
+            if (!h.getStackInSlot(i).isEmpty()) occupied++;
+        }
+        return occupied;
+    }
+
+    public int getAboveCurrentFluids() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IFluidHandler h = handler.orElse(null);
+        if (h == null) return 0;
+        int total = 0;
+        for (int i = 0; i < h.getTanks(); i++) {
+            total += h.getFluidInTank(i).getAmount();
+        }
+        return total / 1000;
+    }
+
+    private int getAboveCurrentFluidsMb() {
+        if (level == null) return 0;
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IFluidHandler h = handler.orElse(null);
+        if (h == null) return 0;
+        int total = 0;
+        for (int i = 0; i < h.getTanks(); i++) {
+            total += h.getFluidInTank(i).getAmount();
+        }
+        return total;
+    }
+
+    // ==================== 带过滤器的查询 ====================
+    public int getFilteredCurrentItems() {
+        if (level == null) return 0;
+        ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
+        if (filterStack.isEmpty()) return getAboveCurrentItems();
+
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IItemHandler h = handler.orElse(null);
+        if (h == null) return 0;
+
+        FilterItemStack fis = FilterItemStack.of(filterStack);
+        int total = 0;
+        for (int i = 0; i < h.getSlots(); i++) {
+            ItemStack stack = h.getStackInSlot(i);
+            if (!stack.isEmpty() && fis.test(level, stack, false)) {
+                total += stack.getCount();
+            }
+        }
+        return total;
+    }
+
+    public int getFilteredCurrentStacks() {
+        if (level == null) return 0;
+        ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
+        if (filterStack.isEmpty()) return getAboveCurrentStacks();
+
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IItemHandler h = handler.orElse(null);
+        if (h == null) return 0;
+
+        FilterItemStack fis = FilterItemStack.of(filterStack);
+        int occupied = 0;
+        for (int i = 0; i < h.getSlots(); i++) {
+            ItemStack stack = h.getStackInSlot(i);
+            if (!stack.isEmpty() && fis.test(level, stack, false)) {
+                occupied++;
+            }
+        }
+        return occupied;
+    }
+
+    public int getFilteredCurrentFluids() {
+        if (level == null) return 0;
+        ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
+        if (filterStack.isEmpty()) return getAboveCurrentFluids();
+
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IFluidHandler h = handler.orElse(null);
+        if (h == null) return 0;
+
+        FilterItemStack fis = FilterItemStack.of(filterStack);
+        int total = 0;
+        for (int i = 0; i < h.getTanks(); i++) {
+            FluidStack fs = h.getFluidInTank(i);
+            if (!fs.isEmpty() && fis.test(level, fs, false)) {
+                total += fs.getAmount();
+            }
+        }
+        return total / 1000;
+    }
+
+    private int getFilteredCurrentFluidsMb() {
+        if (level == null) return 0;
+        ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
+        if (filterStack.isEmpty()) return getAboveCurrentFluidsMb();
+
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return 0;
+        var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
+        if (handler == null || !handler.isPresent()) return 0;
+        IFluidHandler h = handler.orElse(null);
+        if (h == null) return 0;
+
+        FilterItemStack fis = FilterItemStack.of(filterStack);
+        int total = 0;
+        for (int i = 0; i < h.getTanks(); i++) {
+            FluidStack fs = h.getFluidInTank(i);
+            if (!fs.isEmpty() && fis.test(level, fs, false)) {
+                total += fs.getAmount();
+            }
+        }
+        return total;
+    }
+
+    // ==================== 产物生成逻辑 ====================
     public static Item resolveProduceItem() {
         String id = CLRCoreConfig.SERVER.brassScrapBucketProduceItem.get();
         if (id != null && !id.isBlank()) {
@@ -273,6 +513,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
 
     private boolean tryAddToOutput(Item produceItem) {
         ItemStack outputStack = itemHandler.getStackInSlot(OUTPUT_SLOT);
+
         if (outputStack.isEmpty()) {
             itemHandler.setStackInSlot(OUTPUT_SLOT, new ItemStack(produceItem, 1));
             setChanged();
@@ -302,6 +543,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         return stack.is(produceItem);
     }
 
+    // ==================== 手动取出产物 ====================
     public ItemStack takeAllProduced() {
         if (producedStack.isEmpty()) return ItemStack.EMPTY;
         ItemStack result = producedStack.copy();
@@ -310,28 +552,184 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         return result;
     }
 
+    public int getProducedCount() {
+        return producedStack.getCount();
+    }
+
+    // ==================== 当前数量更新（供GUI使用） ====================
+    public void updateCurrentAmounts(int amount, int stacks) {
+        this.currentAmount = amount;
+        this.currentStacks = stacks;
+    }
+
+    public int getCurrentAmount() { return currentAmount; }
+    public int getCurrentStacks() { return currentStacks; }
+
+    // ==================== Tick 逻辑 ====================
+    @Override
+    public void tick() {
+        super.tick();
+        if (level == null || level.isClientSide) return;
+
+        if (keepAmount < 0) return;
+
+        int attachType = getAttachType();
+
+        if (attachType == ATTACH_ITEM) {
+            itemTickCounter++;
+            if (itemTickCounter >= CLRCoreConfig.SERVER.itemTransferInterval.get()) {
+                itemTickCounter = 0;
+                tickItemDrain();
+            }
+        } else if (attachType == ATTACH_FLUID) {
+            fluidTickCounter++;
+            if (fluidTickCounter >= CLRCoreConfig.SERVER.fluidTransferInterval.get()) {
+                fluidTickCounter = 0;
+                tickFluidDrain();
+            }
+        }
+    }
+
+    private void tickItemDrain() {
+        if (level == null) return;
+
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return;
+
+        var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        if (handler == null || !handler.isPresent()) return;
+        IItemHandler h = handler.orElse(null);
+        if (h == null) return;
+
+        ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
+        FilterItemStack fis = filterStack.isEmpty() ? null : FilterItemStack.of(filterStack);
+
+        int transferLimit = CLRCoreConfig.SERVER.itemTransferAmount.get();
+        int destroyed = 0;
+
+        if (keepInStacks) {
+            int occupiedSlots = fis != null ? getFilteredCurrentStacks() : getAboveCurrentStacks();
+            int itemsPerStack = Math.max(1, getAboveMaxItems() / Math.max(1, getAboveMaxStacks()));
+            int limitStacks = keepAmount / itemsPerStack;
+
+            if (occupiedSlots <= limitStacks) return;
+
+            int slotsStillToRemove = occupiedSlots - limitStacks;
+
+            for (int i = 0; i < h.getSlots() && slotsStillToRemove > 0 && destroyed < transferLimit; i++) {
+                ItemStack stack = h.getStackInSlot(i);
+                if (stack.isEmpty()) continue;
+                if (fis != null && !fis.test(level, stack, false)) continue;
+                if (ScrapBucketBlacklist.isBlacklisted(stack)) continue;
+
+                int canTake = Math.min(stack.getCount(), transferLimit - destroyed);
+                if (canTake <= 0) break;
+
+                ItemStack extracted = h.extractItem(i, canTake, false);
+                if (extracted.getCount() >= stack.getCount()) slotsStillToRemove--;
+                destroyed += extracted.getCount();
+                accumulateItemFill(extracted.getCount());
+                setChanged();
+            }
+        } else {
+            for (int i = 0; i < h.getSlots() && destroyed < transferLimit; i++) {
+                ItemStack stack = h.getStackInSlot(i);
+                if (stack.isEmpty()) continue;
+                if (fis != null && !fis.test(level, stack, false)) continue;
+                if (ScrapBucketBlacklist.isBlacklisted(stack)) continue;
+
+                int recalcFiltered = fis != null ? getFilteredCurrentItems() : getAboveCurrentItems();
+                if (recalcFiltered <= keepAmount) break;
+
+                int excess = recalcFiltered - keepAmount;
+                int canTake = Math.min(Math.min(stack.getCount(), excess), transferLimit - destroyed);
+                if (canTake <= 0) break;
+
+                ItemStack extracted = h.extractItem(i, canTake, false);
+                destroyed += extracted.getCount();
+                accumulateItemFill(extracted.getCount());
+                setChanged();
+            }
+        }
+    }
+
+    private void tickFluidDrain() {
+        if (level == null) return;
+
+        BlockPos above = worldPosition.above();
+        BlockEntity be = level.getBlockEntity(above);
+        if (be == null) return;
+
+        var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
+        if (handler == null || !handler.isPresent()) return;
+        IFluidHandler h = handler.orElse(null);
+        if (h == null) return;
+
+        ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
+        FilterItemStack fis = filterStack.isEmpty() ? null : FilterItemStack.of(filterStack);
+
+        int currentMb = fis != null ? getFilteredCurrentFluidsMb() : getAboveCurrentFluidsMb();
+        int limitMb = keepAmount * 1000;
+
+        if (currentMb > limitMb) {
+            int toDestroy = Math.min(currentMb - limitMb, CLRCoreConfig.SERVER.fluidTransferAmount.get());
+            int remaining = toDestroy;
+
+            for (int i = 0; i < h.getTanks() && remaining > 0; i++) {
+                FluidStack inTank = h.getFluidInTank(i);
+                if (inTank.isEmpty()) continue;
+                if (fis != null && !fis.test(level, inTank, false)) continue;
+                if (ScrapBucketBlacklist.isBlacklisted(inTank)) continue;
+
+                FluidStack toDrain = new FluidStack(inTank.getFluid(), remaining);
+                FluidStack drained = h.drain(toDrain, IFluidHandler.FluidAction.EXECUTE);
+                int drainedAmount = drained.getAmount();
+                remaining -= drainedAmount;
+                accumulateFluidFill(drainedAmount);
+                setChanged();
+            }
+        }
+    }
+
+    // ==================== 重置保留配置 ====================
+    public void resetKeepConfig() {
+        keepAmount = -1;
+        keepInStacks = false;
+        setChanged();
+    }
+
+    // ==================== 掉落物品 ====================
     public void drops() {
         if (level == null) return;
+
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
         if (!input.isEmpty()) {
             net.minecraft.world.Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), input);
         }
+
         ItemStack output = itemHandler.getStackInSlot(OUTPUT_SLOT);
         if (!output.isEmpty()) {
             net.minecraft.world.Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), output);
         }
+
         if (!producedStack.isEmpty()) {
             net.minecraft.world.Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), producedStack);
             producedStack = ItemStack.EMPTY;
         }
     }
 
+    // ==================== NBT ====================
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
         tag.put("inventory", itemHandler.serializeNBT());
         tag.putInt("itemFill", itemFill);
         tag.putInt("fluidFill", fluidFill);
+        tag.putInt("keepAmount", keepAmount);
+        tag.putBoolean("keepInStacks", keepInStacks);
+        tag.putInt("currentAmount", currentAmount);
+        tag.putInt("currentStacks", currentStacks);
         if (!producedStack.isEmpty()) {
             CompoundTag stackTag = new CompoundTag();
             producedStack.save(stackTag);
@@ -345,19 +743,23 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         itemHandler.deserializeNBT(tag.getCompound("inventory"));
         itemFill = tag.getInt("itemFill");
         fluidFill = tag.getInt("fluidFill");
+        keepAmount = tag.contains("keepAmount") ? tag.getInt("keepAmount") : -1;
+        keepInStacks = tag.getBoolean("keepInStacks");
+        currentAmount = tag.getInt("currentAmount");
+        currentStacks = tag.getInt("currentStacks");
         if (tag.contains("producedStack")) {
             CompoundTag stackTag = tag.getCompound("producedStack");
             producedStack = ItemStack.of(stackTag);
         } else {
             producedStack = ItemStack.EMPTY;
         }
-        // 同步过滤器到FilteringBehaviour
         if (filtering != null) {
             ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
             filtering.setFilter(filterStack);
         }
     }
 
+    // ==================== Capability ====================
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {

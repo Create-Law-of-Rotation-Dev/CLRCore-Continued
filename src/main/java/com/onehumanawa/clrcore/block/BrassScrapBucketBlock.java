@@ -1,14 +1,19 @@
 package com.onehumanawa.clrcore.block;
 
 import com.onehumanawa.clrcore.ModBlockEntityTypes;
+import com.onehumanawa.clrcore.ModMenuTypes;
+import com.onehumanawa.clrcore.screen.BrassScrapBucketMenu;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
-import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -17,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchable {
@@ -43,37 +49,125 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
                 (lvl, pos, blockState, be) -> ((BrassScrapBucketBlockEntity) be).tick());
     }
 
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
-                                               Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof BrassScrapBucketBlockEntity brassBE) {
-                // 检查是否点击了过滤器槽位
-                FilteringBehaviour filtering = brassBE.filtering;
-                if (filtering != null && filtering.testHit(hitResult.getLocation())) {
-                    // 让FilteringBehaviour处理交互
-                    filtering.onShortInteract(player, InteractionHand.MAIN_HAND, hitResult.getDirection(), hitResult);
-                    return InteractionResult.SUCCESS;
-                }
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
 
-                // Shift + 右键：取出产物
-                if (player.isShiftKeyDown()) {
-                    ItemStack nuggets = brassBE.takeAllProduced();
-                    if (!nuggets.isEmpty()) {
-                        if (!player.getInventory().add(nuggets)) {
-                            player.drop(nuggets, false);
-                        }
-                        return InteractionResult.SUCCESS;
-                    }
+        BlockEntity be = level.getBlockEntity(pos);
+        if (!(be instanceof BrassScrapBucketBlockEntity brassBE)) {
+            return InteractionResult.PASS;
+        }
+
+        // Shift + 右键：取出产物
+        if (player.isShiftKeyDown()) {
+            ItemStack nuggets = brassBE.takeAllProduced();
+            if (!nuggets.isEmpty()) {
+                if (!player.getInventory().add(nuggets)) {
+                    player.drop(nuggets, false);
                 }
-                player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("block.clrcore.brass_scrap_bucket.message"),
-                        true
-                );
                 return InteractionResult.SUCCESS;
             }
+            player.displayClientMessage(
+                    Component.translatable("block.clrcore.brass_scrap_bucket.no_produced"),
+                    true
+            );
+            return InteractionResult.PASS;
         }
-        return InteractionResult.SUCCESS;
+
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return InteractionResult.PASS;
+        }
+
+        // 检查上方是否有容器
+        int attachType = brassBE.getAttachType();
+        if (attachType == BrassScrapBucketBlockEntity.ATTACH_NONE) {
+            player.displayClientMessage(
+                    Component.translatable("block.clrcore.brass_scrap_bucket.no_container"),
+                    true
+            );
+            return InteractionResult.PASS;
+        }
+
+        // 在 lambda 外部提前计算好所有需要的数据，作为 final 变量传入
+        final int fAttachType = attachType;
+        final int fKeepAmount = brassBE.keepAmount;
+        final boolean fKeepInStacks = brassBE.keepInStacks;
+        final ItemStack fFilter = brassBE.filtering.getFilter();
+
+        final int fMaxItems;
+        final int fMaxStacks;
+        final int fCurrentAmount;
+        final int fCurrentStacks;
+
+        boolean hasFilter = !fFilter.isEmpty();
+
+        if (fAttachType == 1) {
+            fMaxItems = brassBE.getAboveMaxItems();
+            fMaxStacks = brassBE.getAboveMaxStacks();
+            if (hasFilter) {
+                fCurrentAmount = brassBE.getFilteredCurrentItems();
+                fCurrentStacks = brassBE.getFilteredCurrentStacks();
+            } else {
+                fCurrentAmount = brassBE.getAboveCurrentItems();
+                fCurrentStacks = brassBE.getAboveCurrentStacks();
+            }
+        } else if (fAttachType == 2) {
+            fMaxItems = 0;
+            fMaxStacks = 0;
+            if (hasFilter) {
+                fCurrentAmount = brassBE.getFilteredCurrentFluids();
+            } else {
+                fCurrentAmount = brassBE.getAboveCurrentFluids();
+            }
+            fCurrentStacks = 0;
+        } else {
+            fMaxItems = 0;
+            fMaxStacks = 0;
+            fCurrentAmount = 0;
+            fCurrentStacks = 0;
+        }
+
+        // 使用 NetworkHooks.openScreen 打开 GUI
+        NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
+            @Override
+            public Component getDisplayName() {
+                return Component.translatable("block.clrcore.brass_scrap_bucket");
+            }
+
+            @Override
+            public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
+                return new BrassScrapBucketMenu(
+                        ModMenuTypes.BRASS_SCRAP_BUCKET.get(),
+                        id,
+                        inv,
+                        pos,
+                        fAttachType,
+                        fKeepAmount,
+                        fKeepInStacks,
+                        fMaxItems,
+                        fMaxStacks,
+                        fCurrentAmount,
+                        fCurrentStacks,
+                        fFilter
+                );
+            }
+        }, buf -> {
+            // 写入数据到网络包，客户端构造 Menu 时会读取
+            buf.writeBlockPos(pos);
+            buf.writeInt(fAttachType);
+            buf.writeInt(fKeepAmount);
+            buf.writeBoolean(fKeepInStacks);
+            buf.writeInt(fMaxItems);
+            buf.writeInt(fMaxStacks);
+            buf.writeInt(fCurrentAmount);
+            buf.writeInt(fCurrentStacks);
+            buf.writeItem(fFilter);
+        });
+
+        return InteractionResult.CONSUME;
     }
 
     @Override

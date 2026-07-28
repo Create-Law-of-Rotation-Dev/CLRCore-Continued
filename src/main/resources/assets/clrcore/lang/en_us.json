@@ -2,8 +2,10 @@
   "item.clrcore.kindled_fuel_rod": "Kindled Fuel Rod",
   "item.clrcore.seething_fuel_rod": "Seething Fuel Rod",
   "item.clrcore.andesite_scrap_bucket": "Andesite Scrap Bucket",
+  "item.clrcore.brass_scrap_bucket": "Brass Scrap Bucket",
 
   "block.clrcore.andesite_scrap_bucket": "Andesite Scrap Bucket",
+  "block.clrcore.brass_scrap_bucket": "Brass Scrap Bucket",
 
   "itemGroup.clrcore": "CLR Core",
 
@@ -12,5 +14,28 @@
   "tooltip.clrcore.andesite_scrap_bucket.shift.suffix": "] for Summary",
   "tooltip.clrcore.andesite_scrap_bucket.destroy_items": "Destroys all non-blacklisted items",
   "tooltip.clrcore.andesite_scrap_bucket.destroy_fluids": "Destroys all non-blacklisted fluids",
-  "tooltip.clrcore.andesite_scrap_bucket.config": "Blacklist can be modified in config file"
+  "tooltip.clrcore.andesite_scrap_bucket.config": "Blacklist can be modified in config file",
+
+  "tooltip.clrcore.brass_scrap_bucket.shift.prefix": "Hold [",
+  "tooltip.clrcore.brass_scrap_bucket.shift.key": "Shift",
+  "tooltip.clrcore.brass_scrap_bucket.shift.suffix": "] for Summary",
+  "tooltip.clrcore.brass_scrap_bucket.summary": "Destroys all input items and fluids, extracting experience nuggets from them.",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour1.condition": "Sneak and right-click while empty-handed:",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "Extract stored experience nuggets (max 64, stops when full).",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour2.condition": "Configure filter on the side or in the menu:",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour2.action": "Only items/fluids matching the filter can be input. Supports any filter.",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour3.condition": "Place below item or fluid storage:",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour3.action": "Right-click to open menu. Destroys excess inventory above the set limit and converts it into %s.",
+  "tooltip.clrcore.brass_scrap_bucket.produce_info": "%d items or %d mB fluid → 1 %s",
+
+  "block.clrcore.brass_scrap_bucket.message": "Shift + Right-click to extract produced items",
+  "block.clrcore.brass_scrap_bucket.no_container": "No container detected above!",
+  "block.clrcore.brass_scrap_bucket.no_produced": "No produced items to extract!",
+  "block.clrcore.brass_scrap_bucket.extracted": "Extracted %d %s",
+
+  "clrcore.gui.brass_scrap_bucket.disabled": "Disabled",
+  "clrcore.gui.brass_scrap_bucket.filter_icon.empty": "Click to set filter",
+  "clrcore.gui.brass_scrap_bucket.filter_icon.click_to_clear": "Click to clear",
+  "clrcore.gui.brass_scrap_bucket.tooltip.current": "Current: %s",
+  "clrcore.gui.brass_scrap_bucket.tooltip.max": "Max: %s"
 }

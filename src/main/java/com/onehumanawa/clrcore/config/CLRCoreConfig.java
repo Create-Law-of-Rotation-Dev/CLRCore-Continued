@@ -18,22 +18,27 @@ public class CLRCoreConfig {
     }
 
     public static class ServerConfig {
-        // 安山岩废料桶黑名单
+        // ===== 安山岩废料桶黑名单 =====
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> scrapBucketBlacklistedItems;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> scrapBucketBlacklistedFluids;
 
-        // 黄铜废料桶配置
+        // ===== 黄铜废料桶配置 =====
         public final ForgeConfigSpec.ConfigValue<Integer> itemsPerNugget;
         public final ForgeConfigSpec.ConfigValue<Integer> mbPerNugget;
         public final ForgeConfigSpec.ConfigValue<Boolean> generateExperienceNuggets;
         public final ForgeConfigSpec.ConfigValue<String> brassScrapBucketProduceItem;
+        public final ForgeConfigSpec.ConfigValue<Integer> itemTransferAmount;
+        public final ForgeConfigSpec.ConfigValue<Integer> itemTransferInterval;
+        public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferAmount;
+        public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferInterval;
 
         ServerConfig(ForgeConfigSpec.Builder builder) {
-            // 安山岩废料桶黑名单
+            // ===== 安山岩废料桶黑名单 =====
             builder.push("scrap_bucket");
 
             scrapBucketBlacklistedItems = builder
-                    .comment("Items that cannot be destroyed by the scrap bucket (format: modid:item)")
+                    .comment("Items that cannot be destroyed by the scrap bucket (format: modid:item)",
+                            "Example: [\"minecraft:diamond\", \"minecraft:nether_star\"]")
                     .defineList("blacklisted_items",
                             Arrays.asList(
                                     "minecraft:nether_star",
@@ -45,31 +50,56 @@ public class CLRCoreConfig {
                             obj -> obj instanceof String && ((String) obj).contains(":"));
 
             scrapBucketBlacklistedFluids = builder
-                    .comment("Fluids that cannot be destroyed by the scrap bucket (format: modid:fluid)")
+                    .comment("Fluids that cannot be destroyed by the scrap bucket (format: modid:fluid)",
+                            "Example: [\"minecraft:lava\", \"minecraft:water\"]")
                     .defineList("blacklisted_fluids",
                             Arrays.asList("minecraft:lava", "minecraft:water"),
                             obj -> obj instanceof String && ((String) obj).contains(":"));
 
             builder.pop();
 
-            // 黄铜废料桶配置
+            // ===== 黄铜废料桶配置 =====
             builder.push("brass_scrap_bucket");
 
             itemsPerNugget = builder
-                    .comment("Number of items needed to produce one experience nugget")
+                    .comment("Number of items needed to produce one experience nugget",
+                            "Default: 64")
                     .defineInRange("itemsPerNugget", 64, 1, Integer.MAX_VALUE);
 
             mbPerNugget = builder
-                    .comment("Number of fluid mb needed to produce one experience nugget")
+                    .comment("Number of fluid mb needed to produce one experience nugget",
+                            "Default: 2000 (2 buckets)")
                     .defineInRange("mbPerNugget", 2000, 1, Integer.MAX_VALUE);
 
             generateExperienceNuggets = builder
-                    .comment("Whether to generate experience nuggets from destroyed items/fluids")
+                    .comment("Whether to generate experience nuggets from destroyed items/fluids",
+                            "Default: true")
                     .define("generateExperienceNuggets", true);
 
             brassScrapBucketProduceItem = builder
-                    .comment("Item produced by the brass scrap bucket (default: create:experience_nugget)")
+                    .comment("Item produced by the brass scrap bucket",
+                            "Default: create:experience_nugget")
                     .define("brassScrapBucketProduceItem", "create:experience_nugget");
+
+            itemTransferAmount = builder
+                    .comment("Number of items to transfer per operation when draining from above container",
+                            "Default: 64")
+                    .defineInRange("itemTransferAmount", 64, 1, Integer.MAX_VALUE);
+
+            itemTransferInterval = builder
+                    .comment("Ticks between item transfer operations when draining from above container",
+                            "Default: 10 ticks (0.5 seconds)")
+                    .defineInRange("itemTransferInterval", 10, 1, Integer.MAX_VALUE);
+
+            fluidTransferAmount = builder
+                    .comment("Amount of fluid (mb) to transfer per operation when draining from above container",
+                            "Default: 1024 mb (1 bucket)")
+                    .defineInRange("fluidTransferAmount", 1024, 1, Integer.MAX_VALUE);
+
+            fluidTransferInterval = builder
+                    .comment("Ticks between fluid transfer operations when draining from above container",
+                            "Default: 10 ticks (0.5 seconds)")
+                    .defineInRange("fluidTransferInterval", 10, 1, Integer.MAX_VALUE);
 
             builder.pop();
         }

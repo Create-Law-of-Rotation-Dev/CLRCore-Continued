@@ -6,7 +6,9 @@ modId = "clrcore"
 version = "0.2"
 displayName = "CLR Core"
 authors = "OneHumanAwa"
-description = '''The core mod for Create the Law of Rotation.'''
+description = '''This core mod for Create: The Law of Rotation which can works standalone.
+It also backports several features from Create Improve.
+'''
 [[dependencies."clrcore"]]
 modId = "forge"
 mandatory = true

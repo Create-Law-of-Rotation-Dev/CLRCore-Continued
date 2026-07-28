@@ -2,15 +2,40 @@
   "item.clrcore.kindled_fuel_rod": "点燃燃料棒",
   "item.clrcore.seething_fuel_rod": "炽热燃料棒",
   "item.clrcore.andesite_scrap_bucket": "安山岩废料桶",
+  "item.clrcore.brass_scrap_bucket": "黄铜废料桶",
 
   "block.clrcore.andesite_scrap_bucket": "安山岩废料桶",
+  "block.clrcore.brass_scrap_bucket": "黄铜废料桶",
 
-  "itemGroup.clrcore": "CLR 核心",
+  "itemGroup.clrcore": "CLR Core",
 
   "tooltip.clrcore.andesite_scrap_bucket.shift.prefix": "按住 [",
   "tooltip.clrcore.andesite_scrap_bucket.shift.key": "Shift",
   "tooltip.clrcore.andesite_scrap_bucket.shift.suffix": "] 获得更多信息",
   "tooltip.clrcore.andesite_scrap_bucket.destroy_items": "销毁所有非黑名单物品",
   "tooltip.clrcore.andesite_scrap_bucket.destroy_fluids": "销毁所有非黑名单流体",
-  "tooltip.clrcore.andesite_scrap_bucket.config": "黑名单可在配置文件中修改"
+  "tooltip.clrcore.andesite_scrap_bucket.config": "黑名单可在配置文件中修改",
+
+  "tooltip.clrcore.brass_scrap_bucket.shift.prefix": "按住 [",
+  "tooltip.clrcore.brass_scrap_bucket.shift.key": "Shift",
+  "tooltip.clrcore.brass_scrap_bucket.shift.suffix": "] 查看概要",
+  "tooltip.clrcore.brass_scrap_bucket.summary": "摧毁一切输入的物品与流体，并在其中汲取少量经验颗粒。",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour1.condition": "潜行并空手右键时：",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "取出储存的经验颗粒（最多64个，存满后不再生成）。",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour2.condition": "在侧方或菜单内配置物品过滤时：",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour2.action": "只有满足过滤条件的物品或流体可以被输入，支持任意过滤器。",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour3.condition": "放置于物品或流体储存设备下方时：",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour3.action": "右键打开菜单，配置保留数量后，自动将上方超出数量的库存销毁并转换为%s。",
+  "tooltip.clrcore.brass_scrap_bucket.produce_info": "%d个物品或%d mB流体 → 1个%s",
+
+  "block.clrcore.brass_scrap_bucket.message": "Shift + 右键取出产物",
+  "block.clrcore.brass_scrap_bucket.no_container": "上方未检测到容器！",
+  "block.clrcore.brass_scrap_bucket.no_produced": "没有可提取的产物！",
+  "block.clrcore.brass_scrap_bucket.extracted": "已提取 %d 个%s",
+
+  "clrcore.gui.brass_scrap_bucket.disabled": "已禁用",
+  "clrcore.gui.brass_scrap_bucket.filter_icon.empty": "点击设置过滤器",
+  "clrcore.gui.brass_scrap_bucket.filter_icon.click_to_clear": "点击清除",
+  "clrcore.gui.brass_scrap_bucket.tooltip.current": "当前: %s",
+  "clrcore.gui.brass_scrap_bucket.tooltip.max": "上限: %s"
 }
