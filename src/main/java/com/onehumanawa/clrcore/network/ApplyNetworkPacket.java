@@ -4,8 +4,6 @@ import com.onehumanawa.clrcore.CLRCore;
 import com.onehumanawa.clrcore.item.NetworkManagerItem;
 import com.onehumanawa.clrcore.item.NetworkSelectedState;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
-import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
-import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +14,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.lang.reflect.Field;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -69,14 +66,10 @@ public class ApplyNetworkPacket {
 
             if (linkedBehaviour != null) {
                 if (applyToWholeNetwork) {
-                    handleWholeNetwork(player, level, be, linkedBehaviour, newNetworkId);
+                    handleWholeNetwork(level, be, linkedBehaviour, newNetworkId);
                 } else {
                     handleSingle(be, linkedBehaviour, newNetworkId);
                 }
-                player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("clrcore.message.network_manager.network_changed"),
-                        true
-                );
             }
         });
         ctx.get().setPacketHandled(true);
@@ -86,7 +79,7 @@ public class ApplyNetworkPacket {
         NetworkManagerItem.reassignNetwork(linkedBehaviour, be, newNetworkId);
     }
 
-    private void handleWholeNetwork(ServerPlayer player, Level level, BlockEntity be,
+    private void handleWholeNetwork(Level level, BlockEntity be,
                                     LogisticallyLinkedBehaviour linkedBehaviour, UUID newNetworkId) {
         UUID oldNetworkId = NetworkManagerItem.getFreqId(be);
         if (oldNetworkId == null) {

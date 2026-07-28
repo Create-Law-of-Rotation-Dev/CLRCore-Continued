@@ -2,19 +2,12 @@ package com.onehumanawa.clrcore.item;
 
 import com.onehumanawa.clrcore.CLRCore;
 import com.onehumanawa.clrcore.ModMenuTypes;
-import com.onehumanawa.clrcore.client.NetworkManagerClientHandler;
+import com.onehumanawa.clrcore.network.ApplyNetworkPacket;
 import com.onehumanawa.clrcore.network.OpenNetworkManagerGuiPacket;
-import com.onehumanawa.clrcore.network.OpenNetworkManagerEditorPacket;
 import com.onehumanawa.clrcore.screen.NetworkManagerLabelEditorMenu;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock;
-import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
-import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -32,10 +25,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.lang.reflect.Field;
@@ -60,6 +49,7 @@ public class NetworkManagerItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
+
         NetworkSelectedState state = NetworkSelectedState.fromItemStack(stack);
         if (state != null) {
             MutableComponent line = Component.translatable("clrcore.hud.network_manager.selected_prefix")
@@ -67,6 +57,9 @@ public class NetworkManagerItem extends Item {
                     .append(Component.literal(state.getLabelName()).withStyle(ChatFormatting.GOLD));
             tooltipComponents.add(line);
         }
+
+        tooltipComponents.add(Component.translatable("clrcore.message.network_manager.applied_whole_shift")
+                .withStyle(ChatFormatting.DARK_GRAY));
     }
 
     public static List<NetworkLabel> getLabels(ItemStack stack) {
@@ -106,118 +99,67 @@ public class NetworkManagerItem extends Item {
     }
 
     @Override
-    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
-        Player player = context.getPlayer();
-        if (player == null) return InteractionResult.PASS;
-        if (player.isShiftKeyDown()) return InteractionResult.PASS;
-        if (NetworkSelectedState.fromItemStack(stack) == null) return InteractionResult.PASS;
-
-        Level level = context.getLevel();
-        BlockEntity be = level.getBlockEntity(context.getClickedPos());
-        if (be == null) return InteractionResult.PASS;
-
-        LogisticallyLinkedBehaviour linkedBehaviour = getBehaviour(be);
-        boolean isPanel = be instanceof FactoryPanelBlockEntity;
-        if (linkedBehaviour == null && !isPanel) return InteractionResult.PASS;
-
-        if (level.isClientSide) {
-            NetworkManagerClientHandler.startLongPressTracking(context.getClickedPos(), context.getClickLocation(), context.getHand());
-            return InteractionResult.FAIL;
-        }
-        return InteractionResult.PASS;
-    }
-
-    @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
-        if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
         Level level = context.getLevel();
         final InteractionHand hand = context.getHand();
+        BlockPos pos = context.getClickedPos();
 
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
 
-        ItemStack stack = player.getItemInHand(hand);
-        BlockEntity be = level.getBlockEntity(context.getClickedPos());
-
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.PASS;
         }
 
-        final UUID networkId;
-        if (be != null) {
-            networkId = getFreqId(be);
-        } else {
-            networkId = null;
-        }
+        ItemStack stack = player.getItemInHand(hand);
+        BlockEntity be = level.getBlockEntity(pos);
 
-        if (networkId == null) {
+        // 检查是否有选中的网络
+        NetworkSelectedState state = NetworkSelectedState.fromItemStack(stack);
+        if (state == null) {
+            // 未选中网络，打开标签界面
             List<NetworkLabel> labels = getLabels(stack);
             CLRCore.CHANNEL.sendToServer(new OpenNetworkManagerGuiPacket(hand, labels));
-        } else {
-            final List<NetworkLabel> labels = getLabels(stack);
-            final Optional<UUID> targetNetworkId = Optional.of(networkId);
-
-            NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
-                @Override
-                public Component getDisplayName() {
-                    return Component.empty();
-                }
-
-                @Override
-                public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
-                    return new NetworkManagerLabelEditorMenu(
-                            ModMenuTypes.NETWORK_MANAGER_LABEL_EDITOR.get(),
-                            id,
-                            inv,
-                            hand,
-                            labels,
-                            targetNetworkId
-                    );
-                }
-            }, buf -> {
-                buf.writeBoolean(hand == InteractionHand.MAIN_HAND);
-                // 写入 labels 列表
-                buf.writeInt(labels.size());
-                for (NetworkLabel label : labels) {
-                    label.serialize(buf);
-                }
-                buf.writeBoolean(true);
-                buf.writeUUID(networkId);
-            });
+            return InteractionResult.SUCCESS;
         }
 
+        // 检查目标是否有效
+        boolean isTarget = getBehaviour(be) != null;
+        if (!isTarget) {
+            return InteractionResult.PASS;
+        }
+
+        // 任何手持网络管理器右键点击元件都应用网络
+        // Shift + 右键 = 整个网络，普通右键 = 单个设备
+        boolean applyToWholeNetwork = player.isShiftKeyDown();
+
+        // 直接发送应用包（不打开任何界面）
+        CLRCore.CHANNEL.sendToServer(new ApplyNetworkPacket(
+                hand,
+                pos,
+                context.getClickLocation(),
+                applyToWholeNetwork
+        ));
+
+        // 显示提示
+        Component message = Component.translatable(
+                applyToWholeNetwork ?
+                        "clrcore.message.network_manager.applied_whole" :
+                        "clrcore.message.network_manager.applied_single"
+        );
+        player.displayClientMessage(message, true);
+
         return InteractionResult.SUCCESS;
-    }
-
-    @SubscribeEvent
-    public static void onRenderGui(RenderGuiEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null) return;
-
-        NetworkSelectedState state = getSelectedState(player);
-        if (state == null) return;
-
-        Component text = Component.translatable("clrcore.hud.network_manager.selected_prefix")
-                .withStyle(ChatFormatting.WHITE)
-                .append(Component.literal(state.getLabelName()).withStyle(ChatFormatting.GOLD));
-
-        int screenWidth = mc.getWindow().getGuiScaledWidth();
-        int screenHeight = mc.getWindow().getGuiScaledHeight();
-        int textWidth = mc.font.width(text);
-        int x = (screenWidth - textWidth) / 2;
-        int y = screenHeight - 61;
-
-        event.getGuiGraphics().drawString(mc.font, text, x, y, 0xFFFFFF, true);
     }
 
     // ==================== Helper Methods ====================
 
     public static LogisticallyLinkedBehaviour getBehaviour(BlockEntity be) {
+        if (be == null) return null;
         return (LogisticallyLinkedBehaviour) BlockEntityBehaviour.get(be, LogisticallyLinkedBehaviour.TYPE);
     }
 
@@ -252,16 +194,5 @@ public class NetworkManagerItem extends Item {
         } catch (Exception e) {
             CLRCore.LOGGER.error("NetworkManager: failed to reassign network", e);
         }
-    }
-    private static NetworkSelectedState getSelectedState(Player player) {
-        if (player == null) return null;
-        for (InteractionHand hand : InteractionHand.values()) {
-            ItemStack stack = player.getItemInHand(hand);
-            if (stack.getItem() instanceof NetworkManagerItem) {
-                NetworkSelectedState state = NetworkSelectedState.fromItemStack(stack);
-                if (state != null) return state;
-            }
-        }
-        return null;
     }
 }

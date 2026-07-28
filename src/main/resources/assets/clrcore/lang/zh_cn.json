@@ -58,5 +58,8 @@
   "clrcore.gui.schedule.move_up": "上移",
   "clrcore.gui.schedule.move_down": "下移",
   "clrcore.gui.stock_ticker.category_name": "分类名称",
-  "clrcore.gui.schedule.lmb_edit": "点击编辑"
+  "clrcore.gui.schedule.lmb_edit": "点击编辑",
+  "clrcore.message.network_manager.applied_single": "已应用到单个设备",
+  "clrcore.message.network_manager.applied_whole": "已应用到整个网络",
+  "clrcore.message.network_manager.applied_whole_shift": "按住 Shift 应用到整个网络"
 }

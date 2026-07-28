@@ -58,5 +58,8 @@
   "clrcore.gui.schedule.move_up": "Move Up",
   "clrcore.gui.schedule.move_down": "Move Down",
   "clrcore.gui.stock_ticker.category_name": "Category Name",
-  "clrcore.gui.schedule.lmb_edit": "Click to edit"
+  "clrcore.gui.schedule.lmb_edit": "Click to edit",
+  "clrcore.message.network_manager.applied_single": "Applied to single device",
+  "clrcore.message.network_manager.applied_whole": "Applied to whole network",
+  "clrcore.message.network_manager.applied_whole_shift": "Hold Shift to apply to whole network"
 }

@@ -25,9 +25,6 @@ public class CLRCoreConfig {
         public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferAmount;
         public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferInterval;
 
-        // ===== 网络管理器配置 =====
-        public final ForgeConfigSpec.ConfigValue<Integer> longPressThreshold;
-
         ServerConfig(ForgeConfigSpec.Builder builder) {
             // ===== 黄铜废料桶配置 =====
             builder.push("brass_scrap_bucket");
@@ -71,16 +68,6 @@ public class CLRCoreConfig {
                     .comment("Ticks between fluid transfer operations when draining from above container",
                             "Default: 10 ticks (0.5 seconds)")
                     .defineInRange("fluidTransferInterval", 10, 1, Integer.MAX_VALUE);
-
-            builder.pop();
-
-            // ===== 网络管理器配置 =====
-            builder.push("network_manager");
-
-            longPressThreshold = builder
-                    .comment("Long press threshold in ticks before opening network manager config screen",
-                            "Default: 20 ticks (1 second)")
-                    .defineInRange("longPressThreshold", 20, 1, 100);
 
             builder.pop();
         }
