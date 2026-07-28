@@ -21,7 +21,7 @@
   "tooltip.clrcore.brass_scrap_bucket.shift.suffix": "] 查看概要",
   "tooltip.clrcore.brass_scrap_bucket.summary": "摧毁一切输入的物品与流体，并在其中汲取少量经验颗粒。",
   "tooltip.clrcore.brass_scrap_bucket.behaviour1.condition": "潜行并空手右键时：",
-  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "取出储存的经验颗粒（最多64个，存满后不再生成）。",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "取出储存的经验颗粒（最多128个，存满后不再生成）。",
   "tooltip.clrcore.brass_scrap_bucket.behaviour2.condition": "在侧方或菜单内配置物品过滤时：",
   "tooltip.clrcore.brass_scrap_bucket.behaviour2.action": "只有满足过滤条件的物品或流体可以被输入，支持任意过滤器。",
   "tooltip.clrcore.brass_scrap_bucket.behaviour3.condition": "放置于物品或流体储存设备下方时：",

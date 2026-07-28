@@ -24,6 +24,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,7 +54,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
     private int itemTickCounter = 0;
     private int fluidTickCounter = 0;
 
-    // 当前数量（用于GUI显示）
     private int currentAmount = 0;
     private int currentStacks = 0;
 
@@ -131,8 +131,31 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
             if (slot == OUTPUT_SLOT) {
-                return super.extractItem(slot, amount, simulate);
+                ItemStack outputStack = getStackInSlot(OUTPUT_SLOT);
+                if (!outputStack.isEmpty()) {
+                    ItemStack extracted = super.extractItem(OUTPUT_SLOT, amount, simulate);
+                    if (!extracted.isEmpty()) {
+                        return extracted;
+                    }
+                }
+
+                if (!producedStack.isEmpty()) {
+                    int extractedCount = Math.min(amount, producedStack.getCount());
+                    if (extractedCount <= 0) return ItemStack.EMPTY;
+
+                    ItemStack result = producedStack.copyWithCount(extractedCount);
+                    if (!simulate) {
+                        producedStack.shrink(extractedCount);
+                        if (producedStack.isEmpty()) {
+                            producedStack = ItemStack.EMPTY;
+                        }
+                        setChanged();
+                    }
+                    return result;
+                }
+                return ItemStack.EMPTY;
             }
+
             if (slot == FILTER_SLOT) {
                 return ItemStack.EMPTY;
             }
@@ -187,7 +210,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
     };
 
-    // ==================== Capability ====================
     private final LazyOptional<IItemHandler> itemHandlerCap = LazyOptional.of(() -> itemHandler);
     private final LazyOptional<IFluidHandler> fluidHandlerCap = LazyOptional.of(() -> fluidHandler);
 
@@ -511,9 +533,13 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
     }
 
+    /**
+     * 尝试添加到输出系统（输出槽 + producedStack 后备）
+     * 输出槽满时自动转入 producedStack 后备存储
+     */
     private boolean tryAddToOutput(Item produceItem) {
+        // 1. 先尝试放入输出槽
         ItemStack outputStack = itemHandler.getStackInSlot(OUTPUT_SLOT);
-
         if (outputStack.isEmpty()) {
             itemHandler.setStackInSlot(OUTPUT_SLOT, new ItemStack(produceItem, 1));
             setChanged();
@@ -524,6 +550,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
             setChanged();
             return true;
         }
+
+        // 2. 输出槽满了或无法堆叠，尝试放入 producedStack 后备存储
         if (producedStack.isEmpty()) {
             producedStack = new ItemStack(produceItem, 1);
             setChanged();
@@ -534,6 +562,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
             setChanged();
             return true;
         }
+
+        // 3. 都满了，无法继续生成
         return false;
     }
 
@@ -543,17 +573,40 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         return stack.is(produceItem);
     }
 
-    // ==================== 手动取出产物 ====================
+    /**
+     * 手动取出全部产物（输出槽 + producedStack 后备存储）
+     */
     public ItemStack takeAllProduced() {
-        if (producedStack.isEmpty()) return ItemStack.EMPTY;
-        ItemStack result = producedStack.copy();
-        producedStack = ItemStack.EMPTY;
-        setChanged();
+        // 1. 先取出输出槽
+        ItemStack outputStack = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        ItemStack result = ItemStack.EMPTY;
+
+        if (!outputStack.isEmpty()) {
+            result = outputStack.copy();
+            itemHandler.setStackInSlot(OUTPUT_SLOT, ItemStack.EMPTY);
+        }
+
+        // 2. 再取出 producedStack 后备存储
+        if (!producedStack.isEmpty()) {
+            if (result.isEmpty()) {
+                result = producedStack.copy();
+            } else {
+                // 合并
+                result = ItemHandlerHelper.copyStackWithSize(result, result.getCount() + producedStack.getCount());
+            }
+            producedStack = ItemStack.EMPTY;
+        }
+
+        if (!result.isEmpty()) {
+            setChanged();
+        }
         return result;
     }
 
     public int getProducedCount() {
-        return producedStack.getCount();
+        int count = producedStack.getCount();
+        count += itemHandler.getStackInSlot(OUTPUT_SLOT).getCount();
+        return count;
     }
 
     // ==================== 当前数量更新（供GUI使用） ====================

@@ -21,7 +21,7 @@
   "tooltip.clrcore.brass_scrap_bucket.shift.suffix": "] for Summary",
   "tooltip.clrcore.brass_scrap_bucket.summary": "Destroys all input items and fluids, extracting experience nuggets from them.",
   "tooltip.clrcore.brass_scrap_bucket.behaviour1.condition": "Sneak and right-click while empty-handed:",
-  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "Extract stored experience nuggets (max 64, stops when full).",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "Extract stored experience nuggets (max 128, stops when full).",
   "tooltip.clrcore.brass_scrap_bucket.behaviour2.condition": "Configure filter on the side or in the menu:",
   "tooltip.clrcore.brass_scrap_bucket.behaviour2.action": "Only items/fluids matching the filter can be input. Supports any filter.",
   "tooltip.clrcore.brass_scrap_bucket.behaviour3.condition": "Place below item or fluid storage:",
