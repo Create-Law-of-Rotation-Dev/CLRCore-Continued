@@ -12,9 +12,8 @@
   "tooltip.clrcore.andesite_scrap_bucket.shift.prefix": "按住 [",
   "tooltip.clrcore.andesite_scrap_bucket.shift.key": "Shift",
   "tooltip.clrcore.andesite_scrap_bucket.shift.suffix": "] 获得更多信息",
-  "tooltip.clrcore.andesite_scrap_bucket.destroy_items": "销毁所有非黑名单物品",
-  "tooltip.clrcore.andesite_scrap_bucket.destroy_fluids": "销毁所有非黑名单流体",
-  "tooltip.clrcore.andesite_scrap_bucket.config": "黑名单可在配置文件中修改",
+  "tooltip.clrcore.andesite_scrap_bucket.destroy_items": "销毁所有输入的物品",
+  "tooltip.clrcore.andesite_scrap_bucket.destroy_fluids": "销毁所有输入的流体",
 
   "tooltip.clrcore.brass_scrap_bucket.shift.prefix": "按住 [",
   "tooltip.clrcore.brass_scrap_bucket.shift.key": "Shift",

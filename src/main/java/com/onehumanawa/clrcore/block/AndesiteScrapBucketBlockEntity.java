@@ -1,10 +1,9 @@
 package com.onehumanawa.clrcore.block;
 
 import com.onehumanawa.clrcore.ModBlockEntityTypes;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,45 +13,37 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public class AndesiteScrapBucketBlockEntity extends BlockEntity {
 
-    private final IItemHandler itemHandler = new IItemHandler() {
-        @Override
-        public int getSlots() {
-            return 1;
-        }
+    private static final int SLOT_COUNT = 1;
+    private static final int INPUT_SLOT = 0;
 
-        @Override
-        public ItemStack getStackInSlot(int slot) {
-            return ItemStack.EMPTY;
-        }
-
+    private final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (ScrapBucketBlacklist.isBlacklisted(stack)) {
-                return stack;
+            // 摧毁一切输入的物品（无黑名单）
+            if (slot == INPUT_SLOT && !stack.isEmpty()) {
+                if (!simulate) {
+                    setChanged();
+                }
+                return ItemStack.EMPTY;
             }
-            return ItemStack.EMPTY;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return ItemStack.EMPTY;
-        }
-
-        @Override
-        public int getSlotLimit(int slot) {
-            return 64;
+            return stack;
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return !ScrapBucketBlacklist.isBlacklisted(stack);
+            // 接受一切物品
+            return slot == INPUT_SLOT;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
         }
     };
 
@@ -74,13 +65,15 @@ public class AndesiteScrapBucketBlockEntity extends BlockEntity {
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            return !ScrapBucketBlacklist.isBlacklisted(stack);
+            return true;
         }
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
-            if (ScrapBucketBlacklist.isBlacklisted(resource)) {
-                return 0;
+            if (resource.isEmpty()) return 0;
+            // 摧毁一切输入的流体（无黑名单）
+            if (!action.simulate()) {
+                setChanged();
             }
             return resource.getAmount();
         }
@@ -96,20 +89,26 @@ public class AndesiteScrapBucketBlockEntity extends BlockEntity {
         }
     };
 
-    public void drops() {
-        if (level == null) return;
-        // 安山岩废料桶只有输入槽，没有过滤槽
-        ItemStack input = itemHandler.getStackInSlot(0);
-        if (!input.isEmpty()) {
-            net.minecraft.world.Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), input);
-        }
-    }
-
     private final LazyOptional<IItemHandler> itemHandlerCap = LazyOptional.of(() -> itemHandler);
     private final LazyOptional<IFluidHandler> fluidHandlerCap = LazyOptional.of(() -> fluidHandler);
 
     public AndesiteScrapBucketBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.ANDESITE_SCRAP_BUCKET.get(), pos, state);
+    }
+
+    public void drops() {
+        if (level == null) return;
+        // 安山岩废料桶不存储任何物品，无需掉落
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
     }
 
     @Override

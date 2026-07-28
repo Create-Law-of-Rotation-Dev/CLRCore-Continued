@@ -62,7 +62,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (slot == INPUT_SLOT) {
-                return !ScrapBucketBlacklist.isBlacklisted(stack);
+                return false;
             }
             if (slot == OUTPUT_SLOT) {
                 return isValidProducedItem(stack);
@@ -95,9 +95,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             if (slot == INPUT_SLOT && !stack.isEmpty()) {
                 if (filtering != null && !filtering.test(stack)) {
-                    return stack;
-                }
-                if (ScrapBucketBlacklist.isBlacklisted(stack)) {
                     return stack;
                 }
                 if (!simulate) {
@@ -182,13 +179,12 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            return !ScrapBucketBlacklist.isBlacklisted(stack);
+            return false;
         }
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
             if (resource.isEmpty()) return 0;
-            if (ScrapBucketBlacklist.isBlacklisted(resource)) return 0;
             if (filtering != null && !filtering.test(resource)) {
                 return 0;
             }
@@ -674,7 +670,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
                 ItemStack stack = h.getStackInSlot(i);
                 if (stack.isEmpty()) continue;
                 if (fis != null && !fis.test(level, stack, false)) continue;
-                if (ScrapBucketBlacklist.isBlacklisted(stack)) continue;
 
                 int canTake = Math.min(stack.getCount(), transferLimit - destroyed);
                 if (canTake <= 0) break;
@@ -690,7 +685,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
                 ItemStack stack = h.getStackInSlot(i);
                 if (stack.isEmpty()) continue;
                 if (fis != null && !fis.test(level, stack, false)) continue;
-                if (ScrapBucketBlacklist.isBlacklisted(stack)) continue;
 
                 int recalcFiltered = fis != null ? getFilteredCurrentItems() : getAboveCurrentItems();
                 if (recalcFiltered <= keepAmount) break;
@@ -733,7 +727,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
                 FluidStack inTank = h.getFluidInTank(i);
                 if (inTank.isEmpty()) continue;
                 if (fis != null && !fis.test(level, inTank, false)) continue;
-                if (ScrapBucketBlacklist.isBlacklisted(inTank)) continue;
 
                 FluidStack toDrain = new FluidStack(inTank.getFluid(), remaining);
                 FluidStack drained = h.drain(toDrain, IFluidHandler.FluidAction.EXECUTE);

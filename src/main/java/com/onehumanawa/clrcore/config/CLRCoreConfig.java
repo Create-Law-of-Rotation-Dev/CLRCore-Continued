@@ -18,10 +18,6 @@ public class CLRCoreConfig {
     }
 
     public static class ServerConfig {
-        // ===== 安山岩废料桶黑名单 =====
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> scrapBucketBlacklistedItems;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> scrapBucketBlacklistedFluids;
-
         // ===== 黄铜废料桶配置 =====
         public final ForgeConfigSpec.ConfigValue<Integer> itemsPerNugget;
         public final ForgeConfigSpec.ConfigValue<Integer> mbPerNugget;
@@ -33,31 +29,6 @@ public class CLRCoreConfig {
         public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferInterval;
 
         ServerConfig(ForgeConfigSpec.Builder builder) {
-            // ===== 安山岩废料桶黑名单 =====
-            builder.push("scrap_bucket");
-
-            scrapBucketBlacklistedItems = builder
-                    .comment("Items that cannot be destroyed by the scrap bucket (format: modid:item)",
-                            "Example: [\"minecraft:diamond\", \"minecraft:nether_star\"]")
-                    .defineList("blacklisted_items",
-                            Arrays.asList(
-                                    "minecraft:nether_star",
-                                    "minecraft:dragon_egg",
-                                    "minecraft:elytra",
-                                    "minecraft:netherite_ingot",
-                                    "minecraft:netherite_block"
-                            ),
-                            obj -> obj instanceof String && ((String) obj).contains(":"));
-
-            scrapBucketBlacklistedFluids = builder
-                    .comment("Fluids that cannot be destroyed by the scrap bucket (format: modid:fluid)",
-                            "Example: [\"minecraft:lava\", \"minecraft:water\"]")
-                    .defineList("blacklisted_fluids",
-                            Arrays.asList("minecraft:lava", "minecraft:water"),
-                            obj -> obj instanceof String && ((String) obj).contains(":"));
-
-            builder.pop();
-
             // ===== 黄铜废料桶配置 =====
             builder.push("brass_scrap_bucket");
 
