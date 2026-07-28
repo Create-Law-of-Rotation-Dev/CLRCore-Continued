@@ -3,6 +3,7 @@
   "item.clrcore.seething_fuel_rod": "Seething Fuel Rod",
   "item.clrcore.andesite_scrap_bucket": "Andesite Scrap Bucket",
   "item.clrcore.brass_scrap_bucket": "Brass Scrap Bucket",
+  "item.clrcore.network_manager": "Network Manager",
 
   "block.clrcore.andesite_scrap_bucket": "Andesite Scrap Bucket",
   "block.clrcore.brass_scrap_bucket": "Brass Scrap Bucket",
@@ -20,7 +21,7 @@
   "tooltip.clrcore.brass_scrap_bucket.shift.suffix": "] for Summary",
   "tooltip.clrcore.brass_scrap_bucket.summary": "Destroys all input items and fluids, extracting experience nuggets from them.",
   "tooltip.clrcore.brass_scrap_bucket.behaviour1.condition": "Sneak and right-click while empty-handed:",
-  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "Extract stored experience nuggets (max 128, stops when full).",
+  "tooltip.clrcore.brass_scrap_bucket.behaviour1.action": "Extract stored experience nuggets (max 64, stops when full).",
   "tooltip.clrcore.brass_scrap_bucket.behaviour2.condition": "Configure filter on the side or in the menu:",
   "tooltip.clrcore.brass_scrap_bucket.behaviour2.action": "Only items/fluids matching the filter can be input. Supports any filter.",
   "tooltip.clrcore.brass_scrap_bucket.behaviour3.condition": "Place below item or fluid storage:",
@@ -36,5 +37,26 @@
   "clrcore.gui.brass_scrap_bucket.filter_icon.empty": "Click to set filter",
   "clrcore.gui.brass_scrap_bucket.filter_icon.click_to_clear": "Click to clear",
   "clrcore.gui.brass_scrap_bucket.tooltip.current": "Current: %s",
-  "clrcore.gui.brass_scrap_bucket.tooltip.max": "Max: %s"
+  "clrcore.gui.brass_scrap_bucket.tooltip.max": "Max: %s",
+
+  "clrcore.hud.network_manager.selected_prefix": "Selected: ",
+  "clrcore.gui.network_manager.search_hint": "Search...",
+  "clrcore.gui.network_manager.lmb_select": "Left click to select",
+  "clrcore.gui.network_manager.rmb_edit": "Right click to edit",
+  "clrcore.gui.network_manager.add_label_title": "Add New Label",
+  "clrcore.gui.network_manager.edit_label_title": "Edit Label",
+  "clrcore.gui.network_manager.label_prefix": "Network ",
+  "clrcore.gui.network_manager.config_network": "Apply to:",
+  "clrcore.gui.network_manager.config_single": "Single",
+  "clrcore.gui.network_manager.config_whole_network": "Whole Network",
+  "clrcore.gui.network_manager.config_release": "Release to confirm",
+  "clrcore.message.network_manager.network_changed": "Network changed!",
+
+  "clrcore.gui.stock_ticker.delete_category": "Delete",
+  "clrcore.gui.stock_ticker.shift_moves_top": "Shift moves to top",
+  "clrcore.gui.stock_ticker.shift_moves_bottom": "Shift moves to bottom",
+  "clrcore.gui.schedule.move_up": "Move Up",
+  "clrcore.gui.schedule.move_down": "Move Down",
+  "clrcore.gui.stock_ticker.category_name": "Category Name",
+  "clrcore.gui.schedule.lmb_edit": "Click to edit"
 }

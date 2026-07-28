@@ -1,6 +1,7 @@
 package com.onehumanawa.clrcore;
 
 import com.onehumanawa.clrcore.item.KindledFuelRodItem;
+import com.onehumanawa.clrcore.item.NetworkManagerItem;
 import com.onehumanawa.clrcore.item.SeethingFuelRodItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -12,7 +13,7 @@ public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, CLRCore.MOD_ID);
 
-    // 燃料棒
+    // ===== 燃料棒 =====
     public static final RegistryObject<Item> KINDLED_FUEL_ROD =
             ITEMS.register("kindled_fuel_rod",
                     () -> new KindledFuelRodItem(new Item.Properties().stacksTo(64)));
@@ -21,15 +22,19 @@ public class ModItems {
             ITEMS.register("seething_fuel_rod",
                     () -> new SeethingFuelRodItem(new Item.Properties().stacksTo(64)));
 
-    // 安山岩废料桶
+    // ===== 废料桶 =====
     public static final RegistryObject<Item> ANDESITE_SCRAP_BUCKET =
             ITEMS.register("andesite_scrap_bucket",
                     () -> new BlockItem(ModBlocks.ANDESITE_SCRAP_BUCKET.get(),
                             new Item.Properties().stacksTo(16)));
 
-    // 黄铜废料桶
     public static final RegistryObject<Item> BRASS_SCRAP_BUCKET =
             ITEMS.register("brass_scrap_bucket",
                     () -> new BlockItem(ModBlocks.BRASS_SCRAP_BUCKET.get(),
                             new Item.Properties().stacksTo(16)));
+
+    // ===== 网络管理器 =====
+    public static final RegistryObject<Item> NETWORK_MANAGER =
+            ITEMS.register("network_manager",
+                    () -> new NetworkManagerItem(new Item.Properties().stacksTo(1)));
 }
