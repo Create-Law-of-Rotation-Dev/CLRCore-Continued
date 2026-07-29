@@ -2,6 +2,7 @@ package com.onehumanawa.clrcore;
 
 import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlockEntity;
 import com.onehumanawa.clrcore.block.BrassScrapBucketBlockEntity;
+import com.onehumanawa.clrcore.block.labeled_redstone_link.LabeledRedstoneLinkBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -24,6 +25,14 @@ public class ModBlockEntityTypes {
                     () -> BlockEntityType.Builder.of(
                             (pos, state) -> new BrassScrapBucketBlockEntity(pos, state),
                             ModBlocks.BRASS_SCRAP_BUCKET.get()
+                    ).build(null)
+            );
+
+    public static final RegistryObject<BlockEntityType<LabeledRedstoneLinkBlockEntity>> LABELED_REDSTONE_LINK =
+            BLOCK_ENTITY_TYPES.register("labeled_redstone_link",
+                    () -> BlockEntityType.Builder.of(
+                            (pos, state) -> new LabeledRedstoneLinkBlockEntity(pos, state),  // 用 lambda
+                            ModBlocks.LABELED_REDSTONE_LINK.get()
                     ).build(null)
             );
 }

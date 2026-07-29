@@ -66,6 +66,7 @@ public class NetworkManagerLabelEditorMenu extends GhostItemMenu<ItemStack> {
     @Override
     protected void initAndReadInventory(ItemStack ignored) {
         this.ghostInventory = this.createGhostInventory();
+        @SuppressWarnings("removal")
         Item stockLink = BuiltInRegistries.ITEM.get(new ResourceLocation("create", "stock_link"));
         this.ghostInventory.setStackInSlot(0, new ItemStack(stockLink));
     }

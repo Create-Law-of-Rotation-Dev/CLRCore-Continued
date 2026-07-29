@@ -78,6 +78,7 @@ public class NetworkManagerLabelEditMenu extends GhostItemMenu<ItemStack> {
         if (icon != null && !icon.isEmpty()) {
             this.ghostInventory.setStackInSlot(0, icon);
         } else {
+            @SuppressWarnings("removal")
             Item stockLink = BuiltInRegistries.ITEM.get(new ResourceLocation("create", "stock_link"));
             this.ghostInventory.setStackInSlot(0, new ItemStack(stockLink));
         }

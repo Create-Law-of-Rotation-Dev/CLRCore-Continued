@@ -14,6 +14,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@SuppressWarnings("removal")
 @Mod(CLRCore.MOD_ID)
 public class CLRCore {
     public static final String MOD_ID = "clrcore";
@@ -108,6 +109,18 @@ public class CLRCore {
                 .encoder(SetNetworkSelectionPacket::encode)
                 .decoder(SetNetworkSelectionPacket::decode)
                 .consumerMainThread(SetNetworkSelectionPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(OpenLabeledRedstoneLinkGuiPacket.class, id++)
+                .encoder(OpenLabeledRedstoneLinkGuiPacket::encode)
+                .decoder(OpenLabeledRedstoneLinkGuiPacket::decode)
+                .consumerMainThread(OpenLabeledRedstoneLinkGuiPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(SaveLabeledRedstoneLinkConfigPacket.class, id++)
+                .encoder(SaveLabeledRedstoneLinkConfigPacket::encode)
+                .decoder(SaveLabeledRedstoneLinkConfigPacket::decode)
+                .consumerMainThread(SaveLabeledRedstoneLinkConfigPacket::handle)
                 .add();
 
         LOGGER.info("All network packets registered!");

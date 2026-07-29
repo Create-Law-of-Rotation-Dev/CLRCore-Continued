@@ -61,5 +61,10 @@
   "clrcore.gui.schedule.lmb_edit": "点击编辑",
   "clrcore.message.network_manager.applied_single": "已应用到单个设备",
   "clrcore.message.network_manager.applied_whole": "已应用到整个网络",
-  "clrcore.message.network_manager.applied_whole_shift": "按住 Shift 应用到整个网络"
+  "clrcore.message.network_manager.applied_whole_shift": "按住 Shift 应用到整个网络",
+
+  "block.clrcore.labeled_redstone_link": "标码红石信号终端",
+  "item.clrcore.labeled_redstone_link": "标码红石信号终端",
+  "clrcore.gui.labeled_redstone_link.title": "红石频率",
+  "clrcore.gui.labeled_redstone_link.default_frequency": "默认红石频率"
 }

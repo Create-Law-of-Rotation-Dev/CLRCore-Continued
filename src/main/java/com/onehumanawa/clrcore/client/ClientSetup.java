@@ -4,7 +4,9 @@ import com.onehumanawa.clrcore.CLRCore;
 import com.onehumanawa.clrcore.ModBlockEntityTypes;
 import com.onehumanawa.clrcore.ModMenuTypes;
 import com.onehumanawa.clrcore.block.BrassScrapBucketRenderer;
+import com.onehumanawa.clrcore.block.labeled_redstone_link.LabeledRedstoneLinkRenderer;
 import com.onehumanawa.clrcore.screen.BrassScrapBucketScreen;
+import com.onehumanawa.clrcore.screen.LabeledRedstoneLinkScreen;
 import com.onehumanawa.clrcore.screen.NetworkManagerLabelEditScreen;
 import com.onehumanawa.clrcore.screen.NetworkManagerLabelEditorScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -36,6 +38,10 @@ public class ClientSetup {
         event.registerBlockEntityRenderer(
                 ModBlockEntityTypes.BRASS_SCRAP_BUCKET.get(),
                 BrassScrapBucketRenderer::new
+        );
+        event.registerBlockEntityRenderer(
+                ModBlockEntityTypes.LABELED_REDSTONE_LINK.get(),
+                LabeledRedstoneLinkRenderer::new
         );
         CLRCore.LOGGER.info("BrassScrapBucketRenderer registered!");
     }

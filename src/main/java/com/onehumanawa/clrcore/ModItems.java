@@ -37,4 +37,10 @@ public class ModItems {
     public static final RegistryObject<Item> NETWORK_MANAGER =
             ITEMS.register("network_manager",
                     () -> new NetworkManagerItem(new Item.Properties().stacksTo(1)));
+
+    // ===== 标码红石信号终端 =====
+    public static final RegistryObject<Item> LABELED_REDSTONE_LINK =
+            ITEMS.register("labeled_redstone_link",
+                    () -> new BlockItem(ModBlocks.LABELED_REDSTONE_LINK.get(),
+                            new Item.Properties()));
 }

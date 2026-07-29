@@ -2,6 +2,7 @@ package com.onehumanawa.clrcore;
 
 import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlock;
 import com.onehumanawa.clrcore.block.BrassScrapBucketBlock;
+import com.onehumanawa.clrcore.block.labeled_redstone_link.LabeledRedstoneLinkBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -37,4 +38,15 @@ public class ModBlocks {
                                     .requiresCorrectToolForDrops()
                     )
             );
+
+    public static final RegistryObject<Block> LABELED_REDSTONE_LINK =
+            BLOCKS.register("labeled_redstone_link",
+                    () -> new LabeledRedstoneLinkBlock(
+                            BlockBehaviour.Properties.of()
+                                    .mapColor(MapColor.METAL)
+                                    .sound(SoundType.METAL)
+                                    .strength(2.0f, 6.0f)
+                                    .noOcclusion()
+                                    .isRedstoneConductor((s, l, p) -> false)
+                    ));
 }

@@ -3,7 +3,7 @@ loaderVersion = "[47,)"
 license = "MIT"
 [[mods]]
 modId = "clrcore"
-version = "0.4-hotfix"
+version = "0.5"
 displayName = "CLR Core"
 authors = "OneHumanAwa"
 description = '''This core mod for Create: The Law of Rotation which can works standalone.
