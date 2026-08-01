@@ -2,6 +2,9 @@ package com.onehumanawa.clrcore.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import java.util.Collections;
+import java.util.List;
+
 public class CLRCoreConfig {
     private CLRCoreConfig() {}
 
@@ -24,6 +27,11 @@ public class CLRCoreConfig {
         public final ForgeConfigSpec.ConfigValue<Integer> itemTransferInterval;
         public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferAmount;
         public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferInterval;
+        // ===== 超级冷却剂 =====
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> superCoolantFluids;
+        public final ForgeConfigSpec.ConfigValue<Double> superCoolantBasicDamage;
+        public final ForgeConfigSpec.ConfigValue<Double> superCoolantIncrease;
+        public final ForgeConfigSpec.ConfigValue<Double> superCoolantPlayerDamage;
 
         ServerConfig(ForgeConfigSpec.Builder builder) {
             // ===== 黄铜废料桶配置 =====
@@ -68,6 +76,34 @@ public class CLRCoreConfig {
                     .comment("Ticks between fluid transfer operations when draining from above container",
                             "Default: 10 ticks (0.5 seconds)")
                     .defineInRange("fluidTransferInterval", 10, 1, Integer.MAX_VALUE);
+
+            builder.pop();
+
+            builder.push("super_coolant");
+
+            superCoolantFluids = builder
+                    .comment(
+                            "List of fluid registry names that act as super coolant.",
+                            "Entities entering these fluids will experience freezing effects (like powdered snow) ",
+                            "and take exponentially increasing damage over time.",
+                            "Players take a fixed (non‑exponential) amount of damage instead.",
+                            "Format: each entry is a resource location, e.g. \"minecraft:water\"",
+                            "Default: empty list")
+                    .defineList("fluids", Collections.emptyList(), o -> o instanceof String);
+            superCoolantBasicDamage = builder
+                    .comment("Base damage applied each tick to non‑player entities in the fluid (before exponential term).",
+                            "Default: 1.0")
+                    .defineInRange("basicDamage", 1.0, 0.0, Double.MAX_VALUE);
+
+            superCoolantIncrease = builder
+                    .comment("Base factor for exponential growth per tick (damage = basicDamage + increase^tickCount).",
+                            "Default: 1.1")
+                    .defineInRange("increaseFactor", 1.1, 1.0, Double.MAX_VALUE);
+
+            superCoolantPlayerDamage = builder
+                    .comment("Fixed damage applied to players per tick while in the fluid (no exponential component).",
+                            "Default: 1.0")
+                    .defineInRange("playerDamage", 1.0, 0.0, Double.MAX_VALUE);
 
             builder.pop();
         }

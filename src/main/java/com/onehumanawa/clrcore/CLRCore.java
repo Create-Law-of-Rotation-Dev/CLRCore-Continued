@@ -2,6 +2,7 @@ package com.onehumanawa.clrcore;
 
 import com.onehumanawa.clrcore.config.CLRCoreConfig;
 import com.onehumanawa.clrcore.network.*;
+import com.onehumanawa.clrcore.event.SuperCoolantHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -42,6 +43,8 @@ public class CLRCore {
 
         // ===== 注册网络包 =====
         registerPackets();
+
+        SuperCoolantHandler.register();
 
         MinecraftForge.EVENT_BUS.register(this);
     }
