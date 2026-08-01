@@ -15,7 +15,7 @@ import java.util.List;
 
 public class LabeledRedstoneLinkBlockEntity extends SmartBlockEntity implements ClipboardCloneable {
 
-    public static final String DEFAULT_FREQUENCY = "默认红石频率";
+    public static final String DEFAULT_FREQUENCY = "默认频率";
     private static final String CLIPBOARD_KEY = "labeled_redstone_link";
 
     private String frequencyText = DEFAULT_FREQUENCY;
@@ -23,8 +23,7 @@ public class LabeledRedstoneLinkBlockEntity extends SmartBlockEntity implements 
     private int receivedSignal = 0;
     private boolean receivedSignalChanged = false;
 
-    // FactoryPanelSupportBehaviour 来自 Create，暂不启用
-    public Object panelSupport; // 临时用 Object 占位，后续适配
+    public Object panelSupport;
 
     public LabeledRedstoneLinkBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.LABELED_REDSTONE_LINK.get(), pos, state);
@@ -32,9 +31,6 @@ public class LabeledRedstoneLinkBlockEntity extends SmartBlockEntity implements 
 
     @Override
     public void addBehaviours(List behaviours) {
-        // FactoryPanelSupportBehaviour 暂不实现
-        // this.panelSupport = new FactoryPanelSupportBehaviour(this, this::isReceiver, () -> this.receivedSignal > 0, this::notifyTransmitSignal);
-        // behaviours.add(this.panelSupport);
     }
 
     private void notifyTransmitSignal() {
@@ -130,10 +126,6 @@ public class LabeledRedstoneLinkBlockEntity extends SmartBlockEntity implements 
         this.level.blockUpdated(attachedPos, this.level.getBlockState(attachedPos).getBlock());
 
         this.receivedSignalChanged = false;
-
-        // if (this.panelSupport != null) {
-        //     this.panelSupport.notifyPanels();
-        // }
     }
 
     @Override

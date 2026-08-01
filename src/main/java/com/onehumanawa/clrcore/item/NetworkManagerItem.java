@@ -121,31 +121,59 @@ public class NetworkManagerItem extends Item {
         // 检查是否有选中的网络
         NetworkSelectedState state = NetworkSelectedState.fromItemStack(stack);
         if (state == null) {
-            // 未选中网络，打开标签界面
+            // 未选中网络：只有 Shift+右键 才处理
+            if (!player.isShiftKeyDown()) {
+                return InteractionResult.PASS;
+            }
+
+            // 检查目标是否已有网络
+            UUID existingNetworkId = getFreqId(be);
+            if (existingNetworkId != null) {
+                // 目标已有网络 → 打开标签编辑器，让玩家选择/编辑标签
+                List<NetworkLabel> labels = getLabels(stack);
+                final Optional<UUID> targetNetworkId = Optional.of(existingNetworkId);
+                NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
+                    @Override
+                    public Component getDisplayName() {
+                        return Component.empty();
+                    }
+                    @Override
+                    public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
+                        return new NetworkManagerLabelEditorMenu(
+                                ModMenuTypes.NETWORK_MANAGER_LABEL_EDITOR.get(),
+                                id, inv, hand, labels, targetNetworkId
+                        );
+                    }
+                }, buf -> {
+                    buf.writeBoolean(hand == InteractionHand.MAIN_HAND);
+                    buf.writeInt(labels.size());
+                    for (NetworkLabel label : labels) {
+                        label.serialize(buf);
+                    }
+                    buf.writeBoolean(true);
+                    buf.writeUUID(existingNetworkId);
+                });
+                return InteractionResult.SUCCESS;
+            }
+
+            // 目标没有网络 → 打开主界面
             List<NetworkLabel> labels = getLabels(stack);
             CLRCore.CHANNEL.sendToServer(new OpenNetworkManagerGuiPacket(hand, labels));
             return InteractionResult.SUCCESS;
         }
 
-        // 检查目标是否有效
+        // 有选中网络：检查目标是否有效
         boolean isTarget = getBehaviour(be) != null;
         if (!isTarget) {
             return InteractionResult.PASS;
         }
 
-        // 任何手持网络管理器右键点击元件都应用网络
-        // Shift + 右键 = 整个网络，普通右键 = 单个设备
+        // 应用网络
         boolean applyToWholeNetwork = player.isShiftKeyDown();
-
-        // 直接发送应用包（不打开任何界面）
         CLRCore.CHANNEL.sendToServer(new ApplyNetworkPacket(
-                hand,
-                pos,
-                context.getClickLocation(),
-                applyToWholeNetwork
+                hand, pos, context.getClickLocation(), applyToWholeNetwork
         ));
 
-        // 显示提示
         Component message = Component.translatable(
                 applyToWholeNetwork ?
                         "clrcore.message.network_manager.applied_whole" :

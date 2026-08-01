@@ -73,6 +73,22 @@ repositories {
     maven { url = "https://maven.tterrag.com/" }
     maven { url = "https://maven.ithundxr.dev/mirror" }
     maven { url = "https://maven.sighs.cc/repository/maven-public/" }
+    maven {
+        name = "Progwml6's maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+    maven {
+        name "firstdarkdev"
+        url "https://maven.firstdark.dev/snapshots"
+    }
 }
 
 dependencies {
@@ -92,8 +108,15 @@ dependencies {
     // Mixin Processor
     annotationProcessor('org.spongepowered:mixin:0.8.5:processor')
 
-    // Apricity UI
-    // implementation('com.sighs:ApricityUI-forge-1.20.1:1.1.6.4')
+    // Just Enough Item
+    compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"))
+    runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
+
+    // Low Drag Lib
+    implementation fg.deobf("com.lowdragmc.ldlib:ldlib-forge-${minecraft_version}:${ldlib_version}")
+
+    // MultiBlocked 2
+    implementation fg.deobf("com.lowdragmc.multiblocked2:Multiblocked2:${minecraft_version}-${mbd_version}")
 }
 
 tasks.named('processResources', ProcessResources).configure {
