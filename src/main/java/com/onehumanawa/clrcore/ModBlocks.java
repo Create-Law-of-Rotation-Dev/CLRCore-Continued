@@ -1,7 +1,7 @@
 package com.onehumanawa.clrcore;
 
-import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlock;
-import com.onehumanawa.clrcore.block.BrassScrapBucketBlock;
+import com.onehumanawa.clrcore.block.andesite_scrap_bucket.AndesiteScrapBucketBlock;
+import com.onehumanawa.clrcore.block.brass_scrap_bucket.BrassScrapBucketBlock;
 import com.onehumanawa.clrcore.block.labeled_redstone_link.LabeledRedstoneLinkBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;

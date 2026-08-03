@@ -1,8 +1,8 @@
-package com.onehumanawa.clrcore.client;
+package com.onehumanawa.clrcore.config;
 
 import com.onehumanawa.clrcore.CLRCore;
 import com.onehumanawa.clrcore.ModBlocks;
-import com.onehumanawa.clrcore.block.BrassScrapBucketBlockEntity;
+import com.onehumanawa.clrcore.block.brass_scrap_bucket.BrassScrapBucketBlockEntity;
 import com.onehumanawa.clrcore.config.CLRCoreConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

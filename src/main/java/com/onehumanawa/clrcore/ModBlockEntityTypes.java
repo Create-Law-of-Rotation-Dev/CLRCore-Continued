@@ -1,7 +1,7 @@
 package com.onehumanawa.clrcore;
 
-import com.onehumanawa.clrcore.block.AndesiteScrapBucketBlockEntity;
-import com.onehumanawa.clrcore.block.BrassScrapBucketBlockEntity;
+import com.onehumanawa.clrcore.block.andesite_scrap_bucket.AndesiteScrapBucketBlockEntity;
+import com.onehumanawa.clrcore.block.brass_scrap_bucket.BrassScrapBucketBlockEntity;
 import com.onehumanawa.clrcore.block.labeled_redstone_link.LabeledRedstoneLinkBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;

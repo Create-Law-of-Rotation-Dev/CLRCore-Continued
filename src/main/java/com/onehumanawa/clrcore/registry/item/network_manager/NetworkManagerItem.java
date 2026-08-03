@@ -1,0 +1,226 @@
+package com.onehumanawa.clrcore.registry.item.network_manager;
+
+import com.onehumanawa.clrcore.CLRCore;
+import com.onehumanawa.clrcore.ModMenuTypes;
+import com.onehumanawa.clrcore.network.packets.network_manager.ApplyNetworkPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.OpenNetworkManagerGuiPacket;
+import com.onehumanawa.clrcore.gui.screen.network_manager.NetworkManagerLabelEditorMenu;
+import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
+import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkHooks;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public class NetworkManagerItem extends Item {
+
+    private static final String NBT_LABELS = "NetworkManagerLabels";
+    private static final String NBT_SEARCH = "NetworkManagerSearch";
+
+    public NetworkManagerItem(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        return NetworkSelectedState.fromItemStack(stack) != null;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
+        super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
+
+        NetworkSelectedState state = NetworkSelectedState.fromItemStack(stack);
+        if (state != null) {
+            MutableComponent line = Component.translatable("clrcore.hud.network_manager.selected_prefix")
+                    .withStyle(ChatFormatting.WHITE)
+                    .append(Component.literal(state.getLabelName()).withStyle(ChatFormatting.GOLD));
+            tooltipComponents.add(line);
+        }
+
+        tooltipComponents.add(Component.translatable("clrcore.message.network_manager.applied_whole_shift")
+                .withStyle(ChatFormatting.DARK_GRAY));
+    }
+
+    public static List<NetworkLabel> getLabels(ItemStack stack) {
+        if (stack.isEmpty() || !stack.hasTag()) return List.of();
+        return NetworkLabel.listFromNBT(stack.getTag(), NBT_LABELS);
+    }
+
+    public static void setLabels(ItemStack stack, List<NetworkLabel> labels) {
+        NetworkLabel.listToNBT(stack.getOrCreateTag(), NBT_LABELS, labels);
+    }
+
+    public static String getSearch(ItemStack stack) {
+        if (stack.isEmpty() || !stack.hasTag()) return "";
+        return stack.getTag().getString(NBT_SEARCH);
+    }
+
+    public static void setSearch(ItemStack stack, String search) {
+        if (search.isEmpty()) {
+            stack.getOrCreateTag().remove(NBT_SEARCH);
+        } else {
+            stack.getOrCreateTag().putString(NBT_SEARCH, search);
+        }
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        if (!player.isShiftKeyDown()) {
+            return InteractionResultHolder.pass(player.getItemInHand(hand));
+        }
+
+        ItemStack stack = player.getItemInHand(hand);
+        if (!level.isClientSide) {
+            List<NetworkLabel> labels = getLabels(stack);
+            CLRCore.CHANNEL.sendToServer(new OpenNetworkManagerGuiPacket(hand, labels));
+        }
+        return InteractionResultHolder.success(stack);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Player player = context.getPlayer();
+        if (player == null) return InteractionResult.PASS;
+
+        Level level = context.getLevel();
+        final InteractionHand hand = context.getHand();
+        BlockPos pos = context.getClickedPos();
+
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
+
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return InteractionResult.PASS;
+        }
+
+        ItemStack stack = player.getItemInHand(hand);
+        BlockEntity be = level.getBlockEntity(pos);
+
+        // 检查是否有选中的网络
+        NetworkSelectedState state = NetworkSelectedState.fromItemStack(stack);
+        if (state == null) {
+            // 未选中网络：只有 Shift+右键 才处理
+            if (!player.isShiftKeyDown()) {
+                return InteractionResult.PASS;
+            }
+
+            // 检查目标是否已有网络
+            UUID existingNetworkId = getFreqId(be);
+            if (existingNetworkId != null) {
+                // 目标已有网络 → 打开标签编辑器，让玩家选择/编辑标签
+                List<NetworkLabel> labels = getLabels(stack);
+                final Optional<UUID> targetNetworkId = Optional.of(existingNetworkId);
+                NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
+                    @Override
+                    public Component getDisplayName() {
+                        return Component.empty();
+                    }
+                    @Override
+                    public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
+                        return new NetworkManagerLabelEditorMenu(
+                                ModMenuTypes.NETWORK_MANAGER_LABEL_EDITOR.get(),
+                                id, inv, hand, labels, targetNetworkId
+                        );
+                    }
+                }, buf -> {
+                    buf.writeBoolean(hand == InteractionHand.MAIN_HAND);
+                    buf.writeInt(labels.size());
+                    for (NetworkLabel label : labels) {
+                        label.serialize(buf);
+                    }
+                    buf.writeBoolean(true);
+                    buf.writeUUID(existingNetworkId);
+                });
+                return InteractionResult.SUCCESS;
+            }
+
+            // 目标没有网络 → 打开主界面
+            List<NetworkLabel> labels = getLabels(stack);
+            CLRCore.CHANNEL.sendToServer(new OpenNetworkManagerGuiPacket(hand, labels));
+            return InteractionResult.SUCCESS;
+        }
+
+        // 有选中网络：检查目标是否有效
+        boolean isTarget = getBehaviour(be) != null;
+        if (!isTarget) {
+            return InteractionResult.PASS;
+        }
+
+        // 应用网络
+        boolean applyToWholeNetwork = player.isShiftKeyDown();
+        CLRCore.CHANNEL.sendToServer(new ApplyNetworkPacket(
+                hand, pos, context.getClickLocation(), applyToWholeNetwork
+        ));
+
+        Component message = Component.translatable(
+                applyToWholeNetwork ?
+                        "clrcore.message.network_manager.applied_whole" :
+                        "clrcore.message.network_manager.applied_single"
+        );
+        player.displayClientMessage(message, true);
+
+        return InteractionResult.SUCCESS;
+    }
+
+    // ==================== Helper Methods ====================
+
+    public static LogisticallyLinkedBehaviour getBehaviour(BlockEntity be) {
+        if (be == null) return null;
+        return (LogisticallyLinkedBehaviour) BlockEntityBehaviour.get(be, LogisticallyLinkedBehaviour.TYPE);
+    }
+
+    public static UUID getFreqId(BlockEntity be) {
+        if (be == null) return null;
+        try {
+            LogisticallyLinkedBehaviour behaviour = getBehaviour(be);
+            if (behaviour == null) return null;
+            Field freqIdField = LogisticallyLinkedBehaviour.class.getDeclaredField("freqId");
+            freqIdField.setAccessible(true);
+            return (UUID) freqIdField.get(behaviour);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static void reassignNetwork(LogisticallyLinkedBehaviour behaviour, BlockEntity be, UUID newNetworkId) {
+        try {
+            LogisticallyLinkedBehaviour.remove(behaviour);
+            behaviour.destroy();
+            Field freqIdField = LogisticallyLinkedBehaviour.class.getDeclaredField("freqId");
+            freqIdField.setAccessible(true);
+            freqIdField.set(behaviour, newNetworkId);
+            Field addedField = LogisticallyLinkedBehaviour.class.getDeclaredField("addedGlobally");
+            addedField.setAccessible(true);
+            addedField.set(behaviour, false);
+            Field loadedField = LogisticallyLinkedBehaviour.class.getDeclaredField("loadedGlobally");
+            loadedField.setAccessible(true);
+            loadedField.set(behaviour, false);
+            behaviour.initialize();
+            be.setChanged();
+        } catch (Exception e) {
+            CLRCore.LOGGER.error("NetworkManager: failed to reassign network", e);
+        }
+    }
+}

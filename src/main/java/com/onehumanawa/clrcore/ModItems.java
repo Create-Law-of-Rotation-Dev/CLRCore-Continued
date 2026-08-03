@@ -1,8 +1,6 @@
 package com.onehumanawa.clrcore;
 
-import com.onehumanawa.clrcore.item.KindledFuelRodItem;
-import com.onehumanawa.clrcore.item.NetworkManagerItem;
-import com.onehumanawa.clrcore.item.SeethingFuelRodItem;
+import com.onehumanawa.clrcore.registry.item.network_manager.NetworkManagerItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
@@ -16,11 +14,11 @@ public class ModItems {
     // ===== 燃料棒 =====
     public static final RegistryObject<Item> KINDLED_FUEL_ROD =
             ITEMS.register("kindled_fuel_rod",
-                    () -> new KindledFuelRodItem(new Item.Properties().stacksTo(64)));
+                    () -> new Item(new Item.Properties().stacksTo(64)));
 
     public static final RegistryObject<Item> SEETHING_FUEL_ROD =
             ITEMS.register("seething_fuel_rod",
-                    () -> new SeethingFuelRodItem(new Item.Properties().stacksTo(64)));
+                    () -> new Item(new Item.Properties().stacksTo(64)));
 
     // ===== 废料桶 =====
     public static final RegistryObject<Item> ANDESITE_SCRAP_BUCKET =

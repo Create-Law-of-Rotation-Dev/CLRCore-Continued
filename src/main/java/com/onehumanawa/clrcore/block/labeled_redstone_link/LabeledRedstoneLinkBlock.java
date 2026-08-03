@@ -2,7 +2,7 @@ package com.onehumanawa.clrcore.block.labeled_redstone_link;
 
 import com.onehumanawa.clrcore.CLRCore;
 import com.onehumanawa.clrcore.ModBlockEntityTypes;
-import com.onehumanawa.clrcore.network.OpenLabeledRedstoneLinkGuiPacket;
+import com.onehumanawa.clrcore.network.packets.labeled_redstone_link.OpenLabeledRedstoneLinkGuiPacket;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.block.IBE;
@@ -30,7 +30,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class LabeledRedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE<LabeledRedstoneLinkBlockEntity> {

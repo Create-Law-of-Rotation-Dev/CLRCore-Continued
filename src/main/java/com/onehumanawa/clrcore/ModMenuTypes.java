@@ -1,8 +1,8 @@
 package com.onehumanawa.clrcore;
 
-import com.onehumanawa.clrcore.screen.BrassScrapBucketMenu;
-import com.onehumanawa.clrcore.screen.NetworkManagerLabelEditMenu;
-import com.onehumanawa.clrcore.screen.NetworkManagerLabelEditorMenu;
+import com.onehumanawa.clrcore.gui.screen.brass_scrap_bucket.BrassScrapBucketMenu;
+import com.onehumanawa.clrcore.gui.screen.network_manager.NetworkManagerLabelEditMenu;
+import com.onehumanawa.clrcore.gui.screen.network_manager.NetworkManagerLabelEditorMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.registries.DeferredRegister;
