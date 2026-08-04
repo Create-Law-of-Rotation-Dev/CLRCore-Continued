@@ -1,9 +1,9 @@
 package com.onehumanawa.clrcore.client.handler;
 
-import com.onehumanawa.clrcore.CLRCore;
-import com.onehumanawa.clrcore.registry.item.network_manager.NetworkManagerItem;
-import com.onehumanawa.clrcore.registry.item.network_manager.NetworkSelectedState;
-import com.onehumanawa.clrcore.network.packets.network_manager.ApplyNetworkPacket;
+import com.onehumanawa.clrcore.core.CLRCore;
+import com.onehumanawa.clrcore.contents.registry.item.network_manager.NetworkManagerItem;
+import com.onehumanawa.clrcore.contents.registry.item.network_manager.NetworkSelectedState;
+import com.onehumanawa.clrcore.network.packets.network_manager.misc.ApplyNetworkPacket;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
