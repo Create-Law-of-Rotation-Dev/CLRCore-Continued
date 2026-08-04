@@ -35,21 +35,13 @@ public class CLRCore {
 
     public CLRCore() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
-        // ===== 注册所有内容 =====
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModBlockEntityTypes.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModMenuTypes.MENU_TYPES.register(modEventBus);
-
-        // ===== 注册配置 =====
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, CLRCoreConfig.SERVER_SPEC);
-
-        // ===== 注册网络包 =====
         PacketRegistry.registerPackets();
-
         SuperCoolantHandler.register();
-
         MinecraftForge.EVENT_BUS.register(this);
     }
 

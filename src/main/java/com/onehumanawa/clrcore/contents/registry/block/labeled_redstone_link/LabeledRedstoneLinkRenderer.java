@@ -15,11 +15,8 @@ public class LabeledRedstoneLinkRenderer extends SmartBlockEntityRenderer<Labele
     @Override
     protected void renderSafe(LabeledRedstoneLinkBlockEntity be, float partialTicks, PoseStack poseStack,
                               MultiBufferSource buffer, int light, int overlay) {
-        // 暂时先不渲染标签，后续可以用配置控制
-        // 因为需要配置系统支持
         String freq = be.getFrequencyText();
         if (freq != null && !freq.isEmpty()) {
-            // 渲染标签
             this.renderNameplateOnHover(be, Component.literal(freq), 0.25F, poseStack, buffer, light);
         }
     }

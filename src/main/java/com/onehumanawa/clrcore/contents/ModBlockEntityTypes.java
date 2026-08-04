@@ -24,7 +24,7 @@ public class ModBlockEntityTypes {
     public static final RegistryObject<BlockEntityType<BrassScrapBucketBlockEntity>> BRASS_SCRAP_BUCKET =
             BLOCK_ENTITY_TYPES.register("brass_scrap_bucket",
                     () -> BlockEntityType.Builder.of(
-                            (pos, state) -> new BrassScrapBucketBlockEntity(pos, state),
+                            BrassScrapBucketBlockEntity::new,
                             ModBlocks.BRASS_SCRAP_BUCKET.get()
                     ).build(null)
             );
@@ -32,7 +32,7 @@ public class ModBlockEntityTypes {
     public static final RegistryObject<BlockEntityType<LabeledRedstoneLinkBlockEntity>> LABELED_REDSTONE_LINK =
             BLOCK_ENTITY_TYPES.register("labeled_redstone_link",
                     () -> BlockEntityType.Builder.of(
-                            (pos, state) -> new LabeledRedstoneLinkBlockEntity(pos, state),  // 用 lambda
+                            LabeledRedstoneLinkBlockEntity::new,
                             ModBlocks.LABELED_REDSTONE_LINK.get()
                     ).build(null)
             );

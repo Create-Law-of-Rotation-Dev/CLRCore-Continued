@@ -16,6 +16,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.BlockItem;
+import org.jetbrains.annotations.NotNull;
 
 public class LabeledRedstoneLinkScreen extends AbstractSimiScreen {
 
@@ -90,7 +91,7 @@ public class LabeledRedstoneLinkScreen extends AbstractSimiScreen {
     }
 
     @Override
-    protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    protected void renderWindow(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         int y = this.guiTop;
 
         AllGuiTextures.STOCK_KEEPER_CATEGORY_HEADER.render(graphics, this.guiLeft, y);
@@ -111,7 +112,6 @@ public class LabeledRedstoneLinkScreen extends AbstractSimiScreen {
                 false
         );
 
-        // 渲染方块图标
         graphics.renderItem(
                 ((BlockItem) ModItems.LABELED_REDSTONE_LINK.get()).getDefaultInstance(),
                 this.guiLeft + 16,
@@ -138,7 +138,7 @@ public class LabeledRedstoneLinkScreen extends AbstractSimiScreen {
             return true;
         }
 
-        if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
             this.onConfirm();
             return true;
         }
@@ -157,6 +157,6 @@ public class LabeledRedstoneLinkScreen extends AbstractSimiScreen {
 
     @Override
     public boolean isPauseScreen() {
-        return false;
+        return super.isPauseScreen();
     }
 }

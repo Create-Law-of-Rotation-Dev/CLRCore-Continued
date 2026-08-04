@@ -34,7 +34,9 @@ public class LabeledRedstoneLinkBlockEntity extends SmartBlockEntity implements 
     private void notifyTransmitSignal() {
         BlockState state = this.getBlockState();
         if (state.getBlock() instanceof LabeledRedstoneLinkBlock block) {
-            block.updateTransmittedSignal(state, this.level, this.worldPosition);
+            if (this.level != null) {
+                block.updateTransmittedSignal(state, this.level, this.worldPosition);
+            }
         }
     }
 

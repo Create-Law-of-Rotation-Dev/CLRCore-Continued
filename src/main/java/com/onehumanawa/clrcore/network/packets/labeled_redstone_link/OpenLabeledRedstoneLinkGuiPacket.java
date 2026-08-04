@@ -30,9 +30,7 @@ public class OpenLabeledRedstoneLinkGuiPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            LabeledRedstoneLinkScreen.open(this);
-        });
+        ctx.get().enqueueWork(() -> LabeledRedstoneLinkScreen.open(this));
         ctx.get().setPacketHandled(true);
     }
 

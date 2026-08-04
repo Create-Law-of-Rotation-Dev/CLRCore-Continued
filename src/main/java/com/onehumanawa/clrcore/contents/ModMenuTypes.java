@@ -14,12 +14,10 @@ public class ModMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENU_TYPES =
             DeferredRegister.create(ForgeRegistries.MENU_TYPES, CLRCore.MOD_ID);
 
-    // ===== 黄铜废料桶 =====
     public static final RegistryObject<MenuType<BrassScrapBucketMenu>> BRASS_SCRAP_BUCKET =
             MENU_TYPES.register("brass_scrap_bucket",
                     () -> IForgeMenuType.create(BrassScrapBucketMenu::new));
 
-    // ===== 网络管理器 =====
     public static final RegistryObject<MenuType<NetworkManagerLabelEditMenu>> NETWORK_MANAGER_LABEL_EDIT =
             MENU_TYPES.register("network_manager_label_edit",
                     () -> IForgeMenuType.create(NetworkManagerLabelEditMenu::new));

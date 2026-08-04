@@ -374,9 +374,4 @@ public class NetworkManagerScreen extends AbstractSimiScreen {
             }
         }
     }
-
-    @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
 }

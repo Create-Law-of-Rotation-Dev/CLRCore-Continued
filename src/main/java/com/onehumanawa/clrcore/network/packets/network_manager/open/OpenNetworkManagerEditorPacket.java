@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,17 +57,17 @@ public class OpenNetworkManagerEditorPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            ServerPlayer player = (ServerPlayer) ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
 
             NetworkHooks.openScreen(player, new MenuProvider() {
                 @Override
-                public Component getDisplayName() {
+                public @NotNull Component getDisplayName() {
                     return Component.empty();
                 }
 
                 @Override
-                public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
+                public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
                     return new NetworkManagerLabelEditorMenu(
                             ModMenuTypes.NETWORK_MANAGER_LABEL_EDITOR.get(),
                             id,

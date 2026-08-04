@@ -24,8 +24,7 @@ public class AndesiteScrapBucketBlockEntity extends BlockEntity {
 
     private final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            // 摧毁一切输入的物品（无黑名单）
+        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
             if (slot == INPUT_SLOT && !stack.isEmpty()) {
                 if (!simulate) {
                     setChanged();
@@ -36,8 +35,7 @@ public class AndesiteScrapBucketBlockEntity extends BlockEntity {
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            // 接受一切物品
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return slot == INPUT_SLOT;
         }
 

@@ -26,6 +26,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -42,12 +43,12 @@ public class NetworkManagerItem extends Item {
     }
 
     @Override
-    public boolean isFoil(ItemStack stack) {
+    public boolean isFoil(@NotNull ItemStack stack) {
         return NetworkSelectedState.fromItemStack(stack) != null;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
+    public void appendHoverText(@NotNull ItemStack stack, Level level, @NotNull List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
 
         NetworkSelectedState state = NetworkSelectedState.fromItemStack(stack);
@@ -64,7 +65,10 @@ public class NetworkManagerItem extends Item {
 
     public static List<NetworkLabel> getLabels(ItemStack stack) {
         if (stack.isEmpty() || !stack.hasTag()) return List.of();
-        return NetworkLabel.listFromNBT(stack.getTag(), NBT_LABELS);
+        if (stack.getTag() != null) {
+            return NetworkLabel.listFromNBT(stack.getTag(), NBT_LABELS);
+        }
+        return List.of();
     }
 
     public static void setLabels(ItemStack stack, List<NetworkLabel> labels) {
@@ -73,7 +77,10 @@ public class NetworkManagerItem extends Item {
 
     public static String getSearch(ItemStack stack) {
         if (stack.isEmpty() || !stack.hasTag()) return "";
-        return stack.getTag().getString(NBT_SEARCH);
+        if (stack.getTag() != null) {
+            return stack.getTag().getString(NBT_SEARCH);
+        }
+        return "";
     }
 
     public static void setSearch(ItemStack stack, String search) {
@@ -85,7 +92,7 @@ public class NetworkManagerItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
         if (!player.isShiftKeyDown()) {
             return InteractionResultHolder.pass(player.getItemInHand(hand));
         }
@@ -99,7 +106,7 @@ public class NetworkManagerItem extends Item {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public @NotNull InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
 
@@ -134,11 +141,11 @@ public class NetworkManagerItem extends Item {
                 final Optional<UUID> targetNetworkId = Optional.of(existingNetworkId);
                 NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
                     @Override
-                    public Component getDisplayName() {
+                    public @NotNull Component getDisplayName() {
                         return Component.empty();
                     }
                     @Override
-                    public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
+                    public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
                         return new NetworkManagerLabelEditorMenu(
                                 ModMenuTypes.NETWORK_MANAGER_LABEL_EDITOR.get(),
                                 id, inv, hand, labels, targetNetworkId
@@ -156,19 +163,16 @@ public class NetworkManagerItem extends Item {
                 return InteractionResult.SUCCESS;
             }
 
-            // 目标没有网络 → 打开主界面
             List<NetworkLabel> labels = getLabels(stack);
             CLRCore.CHANNEL.sendToServer(new OpenNetworkManagerGuiPacket(hand, labels));
             return InteractionResult.SUCCESS;
         }
 
-        // 有选中网络：检查目标是否有效
         boolean isTarget = getBehaviour(be) != null;
         if (!isTarget) {
             return InteractionResult.PASS;
         }
 
-        // 应用网络
         boolean applyToWholeNetwork = player.isShiftKeyDown();
         CLRCore.CHANNEL.sendToServer(new ApplyNetworkPacket(
                 hand, pos, context.getClickLocation(), applyToWholeNetwork
@@ -183,8 +187,6 @@ public class NetworkManagerItem extends Item {
 
         return InteractionResult.SUCCESS;
     }
-
-    // ==================== Helper Methods ====================
 
     public static LogisticallyLinkedBehaviour getBehaviour(BlockEntity be) {
         if (be == null) return null;

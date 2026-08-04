@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +31,6 @@ public class PackageUnpackHelper {
         }
 
         ItemStackHandler contents = PackageItem.getContents(stack);
-        if (contents == null) {
-            return false;
-        }
 
         List<ItemStack> items = new ArrayList<>();
         for (int i = 0; i < contents.getSlots(); i++) {
@@ -139,12 +137,12 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public ItemStack getStackInSlot(int slot) {
+        public @NotNull ItemStack getStackInSlot(int slot) {
             return (slot >= 0 && slot < 9) ? this.inv.getItem(slot) : ItemStack.EMPTY;
         }
 
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
             if (slot < 0 || slot >= 9 || stack.isEmpty()) {
                 return stack;
             }
@@ -174,7 +172,7 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
             return ItemStack.EMPTY;
         }
 
@@ -184,7 +182,7 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return true;
         }
     }
@@ -202,12 +200,12 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public ItemStack getStackInSlot(int slot) {
+        public @NotNull ItemStack getStackInSlot(int slot) {
             return (slot >= 0 && slot < 27) ? this.inv.getItem(slot + 9) : ItemStack.EMPTY;
         }
 
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
             if (slot < 0 || slot >= 27 || stack.isEmpty()) {
                 return stack;
             }
@@ -238,7 +236,7 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
             return ItemStack.EMPTY;
         }
 
@@ -248,7 +246,7 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return true;
         }
     }
@@ -270,12 +268,12 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public ItemStack getStackInSlot(int slot) {
+        public @NotNull ItemStack getStackInSlot(int slot) {
             return (slot >= 0 && slot < this.containerSlots.size()) ? this.containerSlots.get(slot).getItem() : ItemStack.EMPTY;
         }
 
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
             if (slot < 0 || slot >= this.containerSlots.size() || stack.isEmpty()) {
                 return stack;
             }
@@ -311,7 +309,7 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
             return ItemStack.EMPTY;
         }
 
@@ -321,7 +319,7 @@ public class PackageUnpackHelper {
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return (slot >= 0 && slot < this.containerSlots.size()) && this.containerSlots.get(slot).mayPlace(stack);
         }
     }

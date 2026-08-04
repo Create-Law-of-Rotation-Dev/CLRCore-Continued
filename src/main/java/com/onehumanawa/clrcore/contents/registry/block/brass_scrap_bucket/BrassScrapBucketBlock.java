@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchable {
@@ -32,13 +33,13 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new BrassScrapBucketBlockEntity(pos, state);
     }
 
@@ -50,8 +51,8 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
-                                 InteractionHand hand, BlockHitResult hit) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, Player player,
+                                 @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
@@ -61,7 +62,6 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
             return InteractionResult.PASS;
         }
 
-        // Shift + 右键：取出产物
         if (player.isShiftKeyDown()) {
             ItemStack nuggets = brassBE.takeAllProduced();
             if (!nuggets.isEmpty()) {
@@ -81,7 +81,6 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
             return InteractionResult.PASS;
         }
 
-        // 检查上方是否有容器
         int attachType = brassBE.getAttachType();
         if (attachType == BrassScrapBucketBlockEntity.ATTACH_NONE) {
             player.displayClientMessage(
@@ -91,7 +90,6 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
             return InteractionResult.PASS;
         }
 
-        // 在 lambda 外部提前计算好所有需要的数据，作为 final 变量传入
         final int fAttachType = attachType;
         final int fKeepAmount = brassBE.keepAmount;
         final boolean fKeepInStacks = brassBE.keepInStacks;
@@ -130,15 +128,14 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
             fCurrentStacks = 0;
         }
 
-        // 使用 NetworkHooks.openScreen 打开 GUI
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
-            public Component getDisplayName() {
+            public @NotNull Component getDisplayName() {
                 return Component.translatable("block.clrcore.brass_scrap_bucket");
             }
 
             @Override
-            public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
+            public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
                 return new BrassScrapBucketMenu(
                         ModMenuTypes.BRASS_SCRAP_BUCKET.get(),
                         id,
@@ -171,7 +168,7 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof BrassScrapBucketBlockEntity brassBE) {

@@ -15,6 +15,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,12 +72,12 @@ public class OpenNetworkManagerEditPacket {
 
             NetworkHooks.openScreen(player, new MenuProvider() {
                 @Override
-                public Component getDisplayName() {
+                public @NotNull Component getDisplayName() {
                     return Component.empty();
                 }
 
                 @Override
-                public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
+                public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
                     return new NetworkManagerLabelEditMenu(
                             ModMenuTypes.NETWORK_MANAGER_LABEL_EDIT.get(),
                             id,

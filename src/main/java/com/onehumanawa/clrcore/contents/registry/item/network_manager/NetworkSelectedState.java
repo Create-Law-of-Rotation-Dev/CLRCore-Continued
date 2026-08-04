@@ -26,7 +26,6 @@ public class NetworkSelectedState {
     public CompoundTag serialize() {
         CompoundTag tag = new CompoundTag();
         tag.putString("LabelName", labelName);
-        // 使用 putUUID 方法存储 UUID（会自动转为 INT[]）
         tag.putUUID("NetworkId", networkId);
         return tag;
     }
@@ -37,7 +36,6 @@ public class NetworkSelectedState {
             return null;
         }
         String labelName = tag.getString("LabelName");
-        // 使用 getUUID 读取
         UUID networkId = tag.getUUID("NetworkId");
         return new NetworkSelectedState(labelName, networkId);
     }
@@ -46,8 +44,11 @@ public class NetworkSelectedState {
     public static NetworkSelectedState fromItemStack(ItemStack stack) {
         if (stack.isEmpty() || !stack.hasTag()) return null;
         CompoundTag tag = stack.getTag();
-        if (!tag.contains("NetworkSelectedState")) return null;
-        return deserialize(tag.getCompound("NetworkSelectedState"));
+        if (tag != null && !tag.contains("NetworkSelectedState")) return null;
+        if (tag != null) {
+            return deserialize(tag.getCompound("NetworkSelectedState"));
+        }
+        return null;
     }
 
     public static void setToItemStack(ItemStack stack, NetworkSelectedState state) {
@@ -56,7 +57,9 @@ public class NetworkSelectedState {
 
     public static void removeFromItemStack(ItemStack stack) {
         if (stack.hasTag()) {
-            stack.getTag().remove("NetworkSelectedState");
+            if (stack.getTag() != null) {
+                stack.getTag().remove("NetworkSelectedState");
+            }
         }
     }
 }

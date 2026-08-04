@@ -21,7 +21,6 @@ public class PacketRegistry {
     public static void registerPackets() {
         int id = 0;
 
-        // ===== 黄铜废料桶 =====
         CHANNEL.messageBuilder(UpdateBrassScrapBucketAmountPacket.class, id++)
                 .encoder(UpdateBrassScrapBucketAmountPacket::encode)
                 .decoder(UpdateBrassScrapBucketAmountPacket::decode)
@@ -34,7 +33,6 @@ public class PacketRegistry {
                 .consumerMainThread(SaveBrassScrapBucketConfigPacket::handle)
                 .add();
 
-        // ===== 网络管理器 =====
         CHANNEL.messageBuilder(OpenNetworkManagerGuiPacket.class, id++)
                 .encoder(OpenNetworkManagerGuiPacket::encode)
                 .decoder(OpenNetworkManagerGuiPacket::decode)

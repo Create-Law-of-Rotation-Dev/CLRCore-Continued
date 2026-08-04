@@ -18,7 +18,6 @@ public class CLRCoreConfig {
     }
 
     public static class ServerConfig {
-        // ===== 黄铜废料桶配置 =====
         public final ForgeConfigSpec.ConfigValue<Integer> itemsPerNugget;
         public final ForgeConfigSpec.ConfigValue<Integer> mbPerNugget;
         public final ForgeConfigSpec.ConfigValue<Boolean> generateExperienceNuggets;
@@ -27,14 +26,12 @@ public class CLRCoreConfig {
         public final ForgeConfigSpec.ConfigValue<Integer> itemTransferInterval;
         public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferAmount;
         public final ForgeConfigSpec.ConfigValue<Integer> fluidTransferInterval;
-        // ===== 超级冷却剂 =====
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> superCoolantFluids;
         public final ForgeConfigSpec.ConfigValue<Double> superCoolantBasicDamage;
         public final ForgeConfigSpec.ConfigValue<Double> superCoolantIncrease;
         public final ForgeConfigSpec.ConfigValue<Double> superCoolantPlayerDamage;
 
         ServerConfig(ForgeConfigSpec.Builder builder) {
-            // ===== 黄铜废料桶配置 =====
             builder.push("brass_scrap_bucket");
 
             itemsPerNugget = builder

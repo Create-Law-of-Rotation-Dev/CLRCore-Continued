@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.network.NetworkDirection;
+import org.jetbrains.annotations.NotNull;
 
 public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
 
@@ -87,7 +88,6 @@ public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
 
     @Override
     protected void addSlots() {
-        // 玩家背包 (7, 101)
         this.addPlayerSlots(PLAYER_INV_SLOT_X, PLAYER_INV_SLOT_Y);
 
         Level level = player != null ? player.level() : null;
@@ -97,27 +97,23 @@ public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
         }
 
         if (be instanceof BrassScrapBucketBlockEntity brassBE) {
-            // 输入槽 (77, 38)
             this.addSlot(new SlotItemHandler(brassBE.itemHandler, INPUT_SLOT, 77, 38) {
                 @Override
-                public boolean mayPlace(ItemStack stack) {
+                public boolean mayPlace(@NotNull ItemStack stack) {
                     return brassBE.itemHandler.isItemValid(INPUT_SLOT, stack);
                 }
             });
-            // 输出槽 (142, 38) - 只读
             this.addSlot(new SlotItemHandler(brassBE.itemHandler, OUTPUT_SLOT, 142, 38) {
                 @Override
-                public boolean mayPlace(ItemStack stack) {
+                public boolean mayPlace(@NotNull ItemStack stack) {
                     return false;
                 }
             });
         } else {
-            // 占位槽位：使用空 ItemStackHandler，不可交互
-            // 创建一个只有1个空槽位的 ItemStackHandler 作为占位
             ItemStackHandler dummyHandler = new ItemStackHandler(1);
             this.addSlot(new SlotItemHandler(dummyHandler, 0, 77, 38) {
                 @Override
-                public boolean mayPlace(ItemStack stack) {
+                public boolean mayPlace(@NotNull ItemStack stack) {
                     return false;
                 }
                 @Override
@@ -127,7 +123,7 @@ public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
             });
             this.addSlot(new SlotItemHandler(dummyHandler, 0, 142, 38) {
                 @Override
-                public boolean mayPlace(ItemStack stack) {
+                public boolean mayPlace(@NotNull ItemStack stack) {
                     return false;
                 }
                 @Override
@@ -137,18 +133,13 @@ public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
             });
         }
 
-        // 过滤器幽灵槽 (24, 24)
         this.addSlot(new SlotItemHandler(this.ghostInventory, 0, FILTER_ICON_SLOT_X, FILTER_ICON_SLOT_Y));
     }
 
     @Override
     public void clicked(int slotId, int dragType, ClickType clickType, Player player) {
-        // 幽灵槽的实际索引是 38（玩家背包36 + 输入槽1 + 输出槽1）
         int GHOST_SLOT_INDEX = 38;
-
-        // 判断点击的是否是幽灵槽
         if (slotId == GHOST_SLOT_INDEX) {
-            // 处理幽灵槽逻辑（直接操作 ghostInventory 的索引 0）
             ItemStack carried = this.getCarried();
             ItemStack current = this.ghostInventory.getStackInSlot(0);
             boolean carriedIsFilter = !carried.isEmpty() && carried.getItem() instanceof FilterItem;
@@ -191,8 +182,6 @@ public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
             syncFilterToBlockEntity(player);
             return;
         }
-
-        // 其他槽位交给父类
         super.clicked(slotId, dragType, clickType, player);
     }
 
@@ -246,9 +235,8 @@ public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
 
     @Override
     public boolean stillValid(Player player) {
-        if (player == null || pos == null) return false;
+        if (pos == null) return false;
         Level level = player.level();
-        if (level == null) return false;
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof BrassScrapBucketBlockEntity)) return false;
         return player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0;

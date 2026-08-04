@@ -10,13 +10,11 @@ public class BrassScrapBucketFilterSlotPositioning extends ValueBoxTransform.Sid
 
     @Override
     protected Vec3 getSouthLocation() {
-        // 在方块侧面的位置，Y往上3像素
         return VecHelper.voxelSpace(8, 11, 15.5f);
     }
 
     @Override
     protected boolean isSideActive(BlockState state, Direction direction) {
-        // 所有水平方向都显示过滤器槽位
         return direction.getAxis().isHorizontal();
     }
 }

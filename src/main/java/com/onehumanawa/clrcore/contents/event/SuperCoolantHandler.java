@@ -22,7 +22,7 @@ import java.util.UUID;
 
 public class SuperCoolantHandler {
     private static final Map<UUID, Long> ENTER_TICK_MAP = new HashMap<>();
-    private static final double SLOW_FACTOR = 0.2;   // 水平速度倍率（可改为配置项）
+    private static final double SLOW_FACTOR = 0.2;
 
     public static void register() {
         MinecraftForge.EVENT_BUS.register(new SuperCoolantHandler());

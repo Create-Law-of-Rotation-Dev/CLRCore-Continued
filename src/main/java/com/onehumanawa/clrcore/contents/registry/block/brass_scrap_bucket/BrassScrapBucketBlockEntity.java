@@ -57,10 +57,9 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
     private int currentAmount = 0;
     private int currentStacks = 0;
 
-    // ==================== ItemHandler ====================
     public final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             if (slot == INPUT_SLOT) {
                 return false;
             }
@@ -92,7 +91,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
 
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
             if (slot == INPUT_SLOT && !stack.isEmpty()) {
                 if (filtering != null && !filtering.test(stack)) {
                     return stack;
@@ -126,7 +125,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
             if (slot == OUTPUT_SLOT) {
                 ItemStack outputStack = getStackInSlot(OUTPUT_SLOT);
                 if (!outputStack.isEmpty()) {
@@ -160,7 +159,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
     };
 
-    // ==================== FluidHandler ====================
     private final IFluidHandler fluidHandler = new IFluidHandler() {
         @Override
         public int getTanks() {
@@ -168,7 +166,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
 
         @Override
-        public FluidStack getFluidInTank(int tank) {
+        public @NotNull FluidStack getFluidInTank(int tank) {
             return FluidStack.EMPTY;
         }
 
@@ -178,7 +176,7 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
 
         @Override
-        public boolean isFluidValid(int tank, FluidStack stack) {
+        public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
             return false;
         }
 
@@ -196,12 +194,12 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         }
 
         @Override
-        public FluidStack drain(FluidStack resource, FluidAction action) {
+        public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
             return FluidStack.EMPTY;
         }
 
         @Override
-        public FluidStack drain(int maxDrain, FluidAction action) {
+        public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
             return FluidStack.EMPTY;
         }
     };
@@ -209,12 +207,10 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
     private final LazyOptional<IItemHandler> itemHandlerCap = LazyOptional.of(() -> itemHandler);
     private final LazyOptional<IFluidHandler> fluidHandlerCap = LazyOptional.of(() -> fluidHandler);
 
-    // ==================== 构造器 ====================
     public BrassScrapBucketBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.BRASS_SCRAP_BUCKET.get(), pos, state);
     }
 
-    // ==================== Behaviours ====================
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         filtering = new FilteringBehaviour(this, new BrassScrapBucketFilterSlotPositioning())
@@ -232,12 +228,10 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         behaviours.add(filtering);
     }
 
-    // ==================== 获取过滤槽物品 ====================
     public ItemStack getFilterSlot() {
         return itemHandler.getStackInSlot(FILTER_SLOT);
     }
 
-    // ==================== 检测上方容器类型 ====================
     public int getAttachType() {
         if (level == null) return 0;
         BlockPos above = worldPosition.above();
@@ -251,28 +245,26 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         if (be == null) return 0;
 
         var itemCap = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (itemCap != null && itemCap.isPresent()) {
+        if (itemCap.isPresent()) {
             return ATTACH_ITEM;
         }
 
         var fluidCap = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
-        if (fluidCap != null && fluidCap.isPresent()) {
+        if (fluidCap.isPresent()) {
             return ATTACH_FLUID;
         }
 
         return 0;
     }
 
-    // ==================== 上方容器查询方法 ====================
     public int getAboveMaxItems() {
         if (level == null) return 0;
         BlockPos above = worldPosition.above();
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IItemHandler h = handler.orElse(null);
-        if (h == null) return 0;
         int total = 0;
         for (int i = 0; i < h.getSlots(); i++) {
             total += Math.min(64, h.getSlotLimit(i));
@@ -286,9 +278,9 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IItemHandler h = handler.orElse(null);
-        return h == null ? 0 : h.getSlots();
+        return h.getSlots();
     }
 
     public int getAboveMaxFluids() {
@@ -297,9 +289,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IFluidHandler h = handler.orElse(null);
-        if (h == null) return 0;
         int total = 0;
         for (int i = 0; i < h.getTanks(); i++) {
             total += h.getTankCapacity(i);
@@ -313,9 +304,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IItemHandler h = handler.orElse(null);
-        if (h == null) return 0;
         int total = 0;
         for (int i = 0; i < h.getSlots(); i++) {
             total += h.getStackInSlot(i).getCount();
@@ -329,9 +319,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IItemHandler h = handler.orElse(null);
-        if (h == null) return 0;
         int occupied = 0;
         for (int i = 0; i < h.getSlots(); i++) {
             if (!h.getStackInSlot(i).isEmpty()) occupied++;
@@ -345,9 +334,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IFluidHandler h = handler.orElse(null);
-        if (h == null) return 0;
         int total = 0;
         for (int i = 0; i < h.getTanks(); i++) {
             total += h.getFluidInTank(i).getAmount();
@@ -361,9 +349,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.FLUID_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IFluidHandler h = handler.orElse(null);
-        if (h == null) return 0;
         int total = 0;
         for (int i = 0; i < h.getTanks(); i++) {
             total += h.getFluidInTank(i).getAmount();
@@ -371,7 +358,6 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         return total;
     }
 
-    // ==================== 带过滤器的查询 ====================
     public int getFilteredCurrentItems() {
         if (level == null) return 0;
         ItemStack filterStack = itemHandler.getStackInSlot(FILTER_SLOT);
@@ -381,9 +367,8 @@ public class BrassScrapBucketBlockEntity extends SmartBlockEntity {
         BlockEntity be = level.getBlockEntity(above);
         if (be == null) return 0;
         var handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (handler == null || !handler.isPresent()) return 0;
+        if (!handler.isPresent()) return 0;
         IItemHandler h = handler.orElse(null);
-        if (h == null) return 0;
 
         FilterItemStack fis = FilterItemStack.of(filterStack);
         int total = 0;

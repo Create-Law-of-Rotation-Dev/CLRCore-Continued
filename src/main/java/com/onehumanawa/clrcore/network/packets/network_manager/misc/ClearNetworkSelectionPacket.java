@@ -29,7 +29,7 @@ public class ClearNetworkSelectionPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            ServerPlayer player = (ServerPlayer) ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
 
             ItemStack stack = player.getItemInHand(hand);

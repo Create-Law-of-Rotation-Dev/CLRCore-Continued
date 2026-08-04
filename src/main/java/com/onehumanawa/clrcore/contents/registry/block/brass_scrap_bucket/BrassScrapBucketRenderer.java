@@ -20,11 +20,9 @@ public class BrassScrapBucketRenderer extends SmartBlockEntityRenderer<BrassScra
                               MultiBufferSource buffer, int light, int overlay) {
         super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
 
-        // 获取过滤器槽位的物品
         ItemStack filterStack = be.getFilterSlot();
         if (filterStack.isEmpty()) return;
 
-        // 获取过滤器槽位的位置偏移
         var slotPos = new BrassScrapBucketFilterSlotPositioning();
         var state = be.getBlockState();
         var level = be.getLevel();
@@ -33,14 +31,10 @@ public class BrassScrapBucketRenderer extends SmartBlockEntityRenderer<BrassScra
         if (!slotPos.shouldRender(level, pos, state)) return;
 
         ms.pushPose();
-        // 应用位置变换
         slotPos.transform(level, pos, state, ms);
-        // 稍微缩放使物品显示在框内
         ms.scale(0.4f, 0.4f, 0.4f);
-        // 物品始终面向玩家
         ms.mulPose(Axis.YP.rotationDegrees(180));
 
-        // 渲染物品
         Minecraft.getInstance().getItemRenderer().renderStatic(
                 filterStack,
                 ItemDisplayContext.FIXED,

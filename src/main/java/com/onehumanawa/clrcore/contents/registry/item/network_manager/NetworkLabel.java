@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class NetworkLabel {
-    private String name;
-    private ItemStack icon;
-    private UUID networkId; // 可为 null
+    private final String name;
+    private final ItemStack icon;
+    private final UUID networkId;
 
     public NetworkLabel(String name, ItemStack icon, @Nullable UUID networkId) {
         this.name = name;
