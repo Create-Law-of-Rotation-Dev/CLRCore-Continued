@@ -1,5 +1,6 @@
 package com.onehumanawa.clrcore.contents.registry.block.andesite_scrap_bucket;
 
+import com.onehumanawa.clrcore.contents.ModBlockEntityTypes;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -25,7 +26,7 @@ public class AndesiteScrapBucketBlock extends BaseEntityBlock implements IWrench
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new AndesiteScrapBucketBlockEntity(pos, state);
+        return new AndesiteScrapBucketBlockEntity(ModBlockEntityTypes.ANDESITE_SCRAP_BUCKET.get(), pos, state);
     }
 
     @Nullable

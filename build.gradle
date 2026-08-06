@@ -86,7 +86,7 @@ repositories {
         url = "https://modmaven.dev"
     }
     maven {
-        name = "firstdarkdev"
+        name = "FirstDark Dev"
         url = "https://maven.firstdark.dev/snapshots"
     }
     maven {

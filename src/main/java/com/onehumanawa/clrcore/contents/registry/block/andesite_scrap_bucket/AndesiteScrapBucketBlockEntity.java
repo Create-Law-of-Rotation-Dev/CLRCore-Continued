@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -90,8 +91,8 @@ public class AndesiteScrapBucketBlockEntity extends BlockEntity {
     private final LazyOptional<IItemHandler> itemHandlerCap = LazyOptional.of(() -> itemHandler);
     private final LazyOptional<IFluidHandler> fluidHandlerCap = LazyOptional.of(() -> fluidHandler);
 
-    public AndesiteScrapBucketBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntityTypes.ANDESITE_SCRAP_BUCKET.get(), pos, state);
+    public AndesiteScrapBucketBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     public void drops() {

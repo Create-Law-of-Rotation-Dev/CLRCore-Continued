@@ -28,7 +28,7 @@ public class NetworkManagerLabelEditorMenu extends GhostItemMenu<ItemStack> {
     public final List<NetworkLabel> existingLabels;
     public final Optional<UUID> targetNetworkId;
 
-    public NetworkManagerLabelEditorMenu(int id, Inventory inv, FriendlyByteBuf buf) {
+    public NetworkManagerLabelEditorMenu(MenuType<?> type, int id, Inventory inv, FriendlyByteBuf buf) {
         this(ModMenuTypes.NETWORK_MANAGER_LABEL_EDITOR.get(), id, inv,
                 buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
                 readLabels(buf),

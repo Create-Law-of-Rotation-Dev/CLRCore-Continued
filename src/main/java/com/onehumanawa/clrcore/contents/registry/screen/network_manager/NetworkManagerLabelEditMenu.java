@@ -30,7 +30,7 @@ public class NetworkManagerLabelEditMenu extends GhostItemMenu<ItemStack> {
 
     private static ItemStack pendingIcon = null;
 
-    public NetworkManagerLabelEditMenu(int id, Inventory inv, FriendlyByteBuf buf) {
+    public NetworkManagerLabelEditMenu(MenuType<?> type, int id, Inventory inv, FriendlyByteBuf buf) {
         this(ModMenuTypes.NETWORK_MANAGER_LABEL_EDIT.get(), id, inv,
                 buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
                 readLabels(buf),

@@ -40,19 +40,19 @@ public class BrassScrapBucketBlock extends BaseEntityBlock implements IWrenchabl
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new BrassScrapBucketBlockEntity(pos, state);
+        return new BrassScrapBucketBlockEntity(ModBlockEntityTypes.BRASS_SCRAP_BUCKET.get(), pos, state);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         return createTickerHelper(type, ModBlockEntityTypes.BRASS_SCRAP_BUCKET.get(),
                 (lvl, pos, blockState, be) -> ((BrassScrapBucketBlockEntity) be).tick());
     }
 
     @Override
-    public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, Player player,
-                                 @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player,
+                                          @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }

@@ -1,5 +1,6 @@
 package com.onehumanawa.clrcore.contents.registry.screen.labeled_redstone_link;
 
+import com.onehumanawa.clrcore.contents.ModBlocks;
 import com.onehumanawa.clrcore.core.CLRCore;
 import com.onehumanawa.clrcore.contents.ModItems;
 import com.onehumanawa.clrcore.client.gui.widget.FrequencyEditBox;
@@ -113,7 +114,7 @@ public class LabeledRedstoneLinkScreen extends AbstractSimiScreen {
         );
 
         graphics.renderItem(
-                ((BlockItem) ModItems.LABELED_REDSTONE_LINK.get()).getDefaultInstance(),
+                ((BlockItem) ModBlocks.LABELED_REDSTONE_LINK.get().asItem()).getDefaultInstance(),
                 this.guiLeft + 16,
                 this.guiTop + 29
         );

@@ -41,7 +41,7 @@ public class BrassScrapBucketMenu extends GhostItemMenu<ItemStack> {
     private static final int INPUT_SLOT = 0;
     private static final int OUTPUT_SLOT = 1;
 
-    public BrassScrapBucketMenu(int id, Inventory inv, FriendlyByteBuf buf) {
+    public BrassScrapBucketMenu(MenuType<?> type, int id, Inventory inv, FriendlyByteBuf buf) {
         this(ModMenuTypes.BRASS_SCRAP_BUCKET.get(), id, inv,
                 buf.readBlockPos(),
                 buf.readInt(),
