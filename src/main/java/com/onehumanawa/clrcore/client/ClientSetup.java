@@ -1,13 +1,13 @@
 package com.onehumanawa.clrcore.client;
 
-import com.onehumanawa.clrcore.CLRCore;
-import com.onehumanawa.clrcore.ModBlockEntityTypes;
-import com.onehumanawa.clrcore.ModMenuTypes;
-import com.onehumanawa.clrcore.block.brass_scrap_bucket.BrassScrapBucketRenderer;
-import com.onehumanawa.clrcore.block.labeled_redstone_link.LabeledRedstoneLinkRenderer;
-import com.onehumanawa.clrcore.gui.screen.brass_scrap_bucket.BrassScrapBucketScreen;
-import com.onehumanawa.clrcore.gui.screen.network_manager.NetworkManagerLabelEditScreen;
-import com.onehumanawa.clrcore.gui.screen.network_manager.NetworkManagerLabelEditorScreen;
+import com.onehumanawa.clrcore.core.CLRCore;
+import com.onehumanawa.clrcore.contents.ModBlockEntityTypes;
+import com.onehumanawa.clrcore.contents.ModMenuTypes;
+import com.onehumanawa.clrcore.contents.registry.block.brass_scrap_bucket.BrassScrapBucketRenderer;
+import com.onehumanawa.clrcore.contents.registry.block.labeled_redstone_link.LabeledRedstoneLinkRenderer;
+import com.onehumanawa.clrcore.contents.registry.screen.brass_scrap_bucket.BrassScrapBucketScreen;
+import com.onehumanawa.clrcore.contents.registry.screen.network_manager.NetworkManagerLabelEditScreen;
+import com.onehumanawa.clrcore.contents.registry.screen.network_manager.NetworkManagerLabelEditorScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;

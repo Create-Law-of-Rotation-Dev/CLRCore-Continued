@@ -1,6 +1,6 @@
 package com.onehumanawa.clrcore.network.packets.labeled_redstone_link;
 
-import com.onehumanawa.clrcore.block.labeled_redstone_link.LabeledRedstoneLinkBlockEntity;
+import com.onehumanawa.clrcore.contents.registry.block.labeled_redstone_link.LabeledRedstoneLinkBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "clrcore.refmap.json",
   "mixins": [
-    "MixinAbstractContainerMenu"
+    "AbstractContainerMenuMixin"
   ],
   "client": [
   ],

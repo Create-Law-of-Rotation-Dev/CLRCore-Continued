@@ -4,18 +4,23 @@ import com.onehumanawa.clrcore.network.packets.brass_scrap_bucket.SaveBrassScrap
 import com.onehumanawa.clrcore.network.packets.brass_scrap_bucket.UpdateBrassScrapBucketAmountPacket;
 import com.onehumanawa.clrcore.network.packets.labeled_redstone_link.OpenLabeledRedstoneLinkGuiPacket;
 import com.onehumanawa.clrcore.network.packets.labeled_redstone_link.SaveLabeledRedstoneLinkConfigPacket;
-import com.onehumanawa.clrcore.network.packets.network_manager.*;
-import net.minecraft.server.packs.repository.Pack;
+import com.onehumanawa.clrcore.network.packets.network_manager.misc.ApplyNetworkPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.misc.ClearNetworkSelectionPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.misc.SetNetworkSelectionPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.open.OpenNetworkManagerEditPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.open.OpenNetworkManagerEditorPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.open.OpenNetworkManagerGuiPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.save.SaveNetworkManagerDataPacket;
+import com.onehumanawa.clrcore.network.packets.network_manager.save.SaveNetworkManagerSearchPacket;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
-import static com.onehumanawa.clrcore.CLRCore.CHANNEL;
+import static com.onehumanawa.clrcore.core.CLRCore.CHANNEL;
 
 public class PacketRegistry {
     public PacketRegistry () {}
     public static void registerPackets() {
         int id = 0;
 
-        // ===== 黄铜废料桶 =====
         CHANNEL.messageBuilder(UpdateBrassScrapBucketAmountPacket.class, id++)
                 .encoder(UpdateBrassScrapBucketAmountPacket::encode)
                 .decoder(UpdateBrassScrapBucketAmountPacket::decode)
@@ -28,7 +33,6 @@ public class PacketRegistry {
                 .consumerMainThread(SaveBrassScrapBucketConfigPacket::handle)
                 .add();
 
-        // ===== 网络管理器 =====
         CHANNEL.messageBuilder(OpenNetworkManagerGuiPacket.class, id++)
                 .encoder(OpenNetworkManagerGuiPacket::encode)
                 .decoder(OpenNetworkManagerGuiPacket::decode)

@@ -1,6 +1,6 @@
 package com.onehumanawa.clrcore.network.packets.brass_scrap_bucket;
 
-import com.onehumanawa.clrcore.gui.screen.brass_scrap_bucket.BrassScrapBucketScreen;
+import com.onehumanawa.clrcore.contents.registry.screen.brass_scrap_bucket.BrassScrapBucketScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
