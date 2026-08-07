@@ -69,6 +69,7 @@ mixin {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    maven { url = "https://libraries.minecraft.net" }
     maven { url = "https://maven.minecraftforge.net/" }
     maven { url = "https://maven.createmod.net" }
     maven { url = "https://maven.tterrag.com/" }
@@ -95,6 +96,8 @@ repositories {
         url = "https://maven.latvian.dev/releases"
     }
     maven { url = "https://maven.architectury.dev/" }
+    mavenLocal()
+    flatDir { dirs "libs" }
 }
 
 dependencies {
